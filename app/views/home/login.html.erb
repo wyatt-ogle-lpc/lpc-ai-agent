@@ -1,0 +1,19 @@
+<div class="llm-login-container">
+  <!-- Background image -->
+  <div class="background-mouse">
+    <%= image_tag "mouse.png", alt: "", class: "bg-mouse-img" %>
+  </div>
+
+  <!-- Top-left logo -->
+  <div class="login-logo-corner">
+    <%= image_tag "logo.png", alt: "LPC Logo", class: "logo-corner" %>
+  </div>
+
+  <!-- Centered panel -->
+  <div class="login-panel-centered">
+    <h1 class="heading-login">Welcome to the LPC AI Agent</h1>
+    <h3 class="subheading-login">Sign in with your LPC email to get started</h3>
+
+    <%= link_to "Sign in with Google", google_login_path, class: "btn-login-google", data: { turbo: false } %>
+  </div>
+</div>

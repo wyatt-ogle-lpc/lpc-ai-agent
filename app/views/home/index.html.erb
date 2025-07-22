@@ -1,0 +1,82 @@
+<% agent_tooltips = {
+  0 => ["Clypboard Assistant", "Clypboard Assistant retrieves Work orders, schedules, leads & Clypboard data\nPerfect for any Clypboard retrieval"],
+  1 => ["Handbook Helper", "Handbook Helper knows PTO, policies, HR rules & employee guidelines\nPerfect for HR questions"],
+  2 => ["Route Tech Assistant", "Route Tech Assistant knows fieldwork steps, safety, and equipment use\nPerfect for in-field questions"],
+  3 => ["Call Center Agent", "Call Center Agent knows internal call flow, billing, scheduling protocols\nIndended for call center staff"],
+  4 => ["Lloydbot", "Lloydbot routes requests to the right internal assistant\nGood if you aren't sure which agent to use"]
+} %>
+
+
+<div class="llm-welcome-container">
+  <!-- Giant background image -->
+  <div class="background-mouse">
+    <%= image_tag "mouse.png", alt: "", class: "bg-mouse-img" %>
+  </div>
+  <!-- Left: Text buttons -->
+<div class="llm-agent-select">
+  <h3 class="select-title">Select Agent</h3>
+
+    <% agent_tooltips.each do |id, (name, tooltip)| %>
+      <div class="agent-entry" 
+          data-agent-name="<%= name %>" 
+          data-agent-description="<%= tooltip.downcase %>">
+          <%= link_to name, ask_path(agent_id: id), class: "text-link", data: { turbo: false } %>
+          </div>
+    <% end %>
+
+  <%= button_to "Logout", logout_path, method: :delete, class: "logout-btn", form_class: "logout-form" %>
+</div>
+
+
+  <!-- Center: Logo and heading -->
+  <div class="llm-welcome-centerpiece">
+    <div class="centerpiece-static">
+      <div class="logo-container">
+        <%= image_tag "mouse.png", alt: "LPC Logo", class: "logo" %>
+      </div>
+      <h1 class="heading-welcome" id="agent-heading">
+        Welcome to LPC AI Agent
+      </h1>
+    </div>
+
+    <div class="heading-sub-wrapper">
+      <h3 class="heading-sub" id="agent-subheading">
+        hover over an agent to see its details
+      </h3>
+    </div>
+  </div>
+
+
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const agentHeading = document.getElementById("agent-heading");
+    const agentSubheading = document.getElementById("agent-subheading");
+    const defaultTitle = "Welcome to LPC AI Agent";
+    const defaultSubtitle = "Your internal assistant for everything Lloyd";
+
+    function updateTextWithFade(element, newText) {
+      element.style.opacity = 0;
+
+      setTimeout(() => {
+        element.textContent = newText;
+        element.style.opacity = 1;
+      }, 150); // match half the transition time
+    }
+
+    document.querySelectorAll(".agent-entry").forEach(entry => {
+      entry.addEventListener("mouseenter", () => {
+        updateTextWithFade(agentHeading, entry.dataset.agentName);
+        updateTextWithFade(agentSubheading, entry.dataset.agentDescription);
+      });
+
+      entry.addEventListener("mouseleave", () => {
+        updateTextWithFade(agentHeading, defaultTitle);
+        updateTextWithFade(agentSubheading, defaultSubtitle);
+      });
+    });
+  });
+</script>
+

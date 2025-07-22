@@ -1,0 +1,118 @@
+<%= stylesheet_link_tag "llm_chat", media: "all" %>
+<%= javascript_import_module_tag "llm_chat" %>
+
+<div class="llm-app-container">
+  <script>
+    console.log("🛰️ params[:agent_id] = <%= params[:agent_id].inspect %>");
+    console.log("📎 session[:agent_id] =", <%= session[:agent_id].to_i %>);
+  </script>
+
+  <!-- Sidebar -->
+  <div class="llm-sidebar">
+    <h2>Conversations</h2>
+      <ul class="conversation-list">
+        <% @conversations.each do |conv| %>
+          <% safe_title = conv.title.gsub(/\*\*(.+?)\*\*/, '<span class="markdown-bold">\1</span>').html_safe %>
+          <% tooltip_title = conv.title.gsub(/\*\*(.+?)\*\* - /, '') %>
+          <li class="conversation-item">
+            <%= link_to ask_path(id: conv.id, agent_id: session[:agent_id]), class: "conversation-title" do %>
+              <%= safe_title %>
+            <% end %>
+            <%= button_to "✕", delete_conversation_path(conv), method: :delete,
+                form_class: "inline-delete-form",
+                class: "delete-btn" %>
+            <div class="tooltip"><%= tooltip_title %></div>
+          </li>
+        <% end %>
+      </ul>
+      
+      <%= button_to "New Chat  +", new_chat_path,
+      method: :post,
+      form: { data: { turbo: false } },
+      class: "new-chat-btn" %>
+  </div>
+
+  <!-- Main chat area -->
+  <div class="llm-main">
+    <!-- Header -->
+    <div class="llm-chat-header">
+      <div class="logo-container">
+        <%= image_tag "logo.png", alt: "LPC Logo", class: "logo" %>
+      </div>
+      <div class="heading-group">
+        <h1>Ask the LPC AI Agent</h1>
+        <h3>Your internal assistant for everything Lloyd</h3>
+      </div>
+      <!-- Top right agent + menu -->
+      <div class="llm-agent-controls">
+        <div class="agent-action-group">
+          <%= button_to "Logout", logout_path, method: :delete, class: "logout-button", form_class: "logout-form" %>
+          <%= link_to root_path, class: "agent-link", data: { turbo: false } do %>
+            <span class="agent-label">
+              <%= agent_name(session[:agent_id]) %>
+              <%= image_tag("switch.svg", alt: "Switch Agent", class: "switch-icon") %>
+              <span class="tooltip">Switch Agent</span>
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Chat container -->
+    <div class="llm-chat-container">
+
+      <!-- Chat messages -->
+      <div id="llm-chat-log">
+        <% if @chat_history.present? %>
+          <% @chat_history.each_with_index do |entry, idx| %>
+            <% next if entry[:role] == "system" %> <!-- 👈 Skip system messages -->
+            <% if entry[:role] == "user" %>
+              <div class="llm-message-row">
+                <div class="llm-message llm-user"><%= h(entry[:content]) %></div>
+              </div>
+            <% else %>
+              <% message_id = @conversation.messages[idx].id rescue nil %> 
+              <% animate = message_id && message_id == @last_bot_message_id %>
+              <div class="llm-message-row">
+                <div class="llm-message llm-bot" <%= 'data-animate="true"' if animate %>>
+                  <% rendered = markdown(entry[:content]) %>
+                  <%= rendered.present? ? raw(rendered) : content_tag(:p, h(entry[:content]), class: "llm-message-plain") %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Form -->
+      <div class="llm-form-row">
+        <form id="chat-form" data-conversation-id="<%= @conversation.id %>" action="/ask/<%= @conversation.id %>" method="post">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          
+          <div class="llm-form-inner">
+            <textarea name="prompt" class="llm-input" rows="2" placeholder="Ask <%= agent_name(session[:agent_id]) %> a question..."></textarea>
+            <button type="submit" class="llm-send">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24" transform="translate(1, 0)">
+                <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div> <!-- end llm-chat-container -->
+  </div> <!-- end llm-main -->
+</div> <!-- end llm-app-container -->
+
+<!-- JS to show typing animation -->
+<script>
+  function formatAsParagraphs(text) {
+    const lines = text.trim().split(/\n{2,}/);
+    return lines.map(line => {
+      const withBold = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      return `<p>${withBold.trim()}</p>`;
+    }).join('');
+  }
+
+</script>
