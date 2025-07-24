@@ -24,8 +24,8 @@ gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'activerecord-session_store'
 gem 'redcarpet'
-
-
+gem "google-cloud-speech"
+gem "google-cloud-text_to_speech", "~> 2.0"
 
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]

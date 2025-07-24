@@ -19,7 +19,7 @@ class AuthenticationsController < ApplicationController
   
       # 2. Build the Google OAuth URL with all required parameters.
       client_id = ENV['GOOGLE_CLIENT_ID']
-      redirect_uri = "http://localhost:3000/auth/google_oauth2/callback" # Must match Google Console
+      redirect_uri = "#{request.protocol}#{request.host_with_port}/auth/google_oauth2/callback"
       scope = "email profile"
       
       google_auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + {

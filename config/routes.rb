@@ -19,6 +19,8 @@ Rails.application.routes.draw do
 
   delete "/conversations/:id", to: "agents#destroy", as: :delete_conversation
 
+  post "/transcribe", to: "speech#transcribe"
+  post "/tts", to: "tts#speak"
 
 
 end

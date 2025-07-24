@@ -2,14 +2,12 @@
 <%= javascript_import_module_tag "llm_chat" %>
 
 <div class="llm-app-container">
-  <script>
-    console.log("🛰️ params[:agent_id] = <%= params[:agent_id].inspect %>");
-    console.log("📎 session[:agent_id] =", <%= session[:agent_id].to_i %>);
-  </script>
-
   <!-- Sidebar -->
   <div class="llm-sidebar">
-    <h2>Conversations</h2>
+    <div class="sidebar-header">
+      <h2>Conversations</h2>
+      <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+    </div>
       <ul class="conversation-list">
         <% @conversations.each do |conv| %>
           <% safe_title = conv.title.gsub(/\*\*(.+?)\*\*/, '<span class="markdown-bold">\1</span>').html_safe %>
@@ -36,6 +34,9 @@
   <div class="llm-main">
     <!-- Header -->
     <div class="llm-chat-header">
+      <div id="header-toggle-placeholder">
+        <div id="header-toggle-spacer">☰</div>
+      </div>
       <div class="logo-container">
         <%= image_tag "logo.png", alt: "LPC Logo", class: "logo" %>
       </div>
@@ -43,7 +44,6 @@
         <h1>Ask the LPC AI Agent</h1>
         <h3>Your internal assistant for everything Lloyd</h3>
       </div>
-      <!-- Top right agent + menu -->
       <div class="llm-agent-controls">
         <div class="agent-action-group">
           <%= button_to "Logout", logout_path, method: :delete, class: "logout-button", form_class: "logout-form" %>
@@ -56,8 +56,23 @@
           <% end %>
         </div>
       </div>
-
+      <button id="header-extra-toggle" class="header-extra-toggle">☰</button>
+      <div id="header-extra" class="header-extra">
+        <button class="header-extra-close" id="header-extra-close" aria-label="Close dropdown">&times;</button>
+        <div class="agent-action-group">
+          <%= button_to "Logout", logout_path, method: :delete, class: "logout-button", form_class: "logout-form" %>
+          <%= link_to root_path, class: "agent-link", data: { turbo: false } do %>
+            <span class="agent-label">
+              <%= agent_name(session[:agent_id]) %>
+              <%= image_tag("switch.svg", alt: "Switch Agent", class: "switch-icon") %>
+              <span class="tooltip">Switch Agent</span>
+            </span>
+          <% end %>
+        </div>
+      </div>
     </div>
+  
+  
 
     <!-- Chat container -->
     <div class="llm-chat-container">
@@ -89,9 +104,18 @@
       <div class="llm-form-row">
         <form id="chat-form" data-conversation-id="<%= @conversation.id %>" action="/ask/<%= @conversation.id %>" method="post">
           <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-          
+
           <div class="llm-form-inner">
             <textarea name="prompt" class="llm-input" rows="2" placeholder="Ask <%= agent_name(session[:agent_id]) %> a question..."></textarea>
+            <select id="language-select" class="lang-select">
+              <option value="en-US">English</option>
+              <option value="es-US">Español</option>
+            </select>
+            <button type="button" id="start-recording" class="llm-mic-button">
+              <%= image_tag "mic.svg", alt: "Record", class: "mic-icon", id: "mic-icon",
+                data: { mic: asset_path("mic.svg"), recording: asset_path("recording.svg") } %>
+            </button>
+            <span id="recording-status" style="margin-left: 10px;"></span>
             <button type="submit" class="llm-send">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24" transform="translate(1, 0)">
                 <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -105,14 +129,3 @@
   </div> <!-- end llm-main -->
 </div> <!-- end llm-app-container -->
 
-<!-- JS to show typing animation -->
-<script>
-  function formatAsParagraphs(text) {
-    const lines = text.trim().split(/\n{2,}/);
-    return lines.map(line => {
-      const withBold = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      return `<p>${withBold.trim()}</p>`;
-    }).join('');
-  }
-
-</script>

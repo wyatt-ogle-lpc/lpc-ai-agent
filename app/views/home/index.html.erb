@@ -19,7 +19,7 @@
     <% agent_tooltips.each do |id, (name, tooltip)| %>
       <div class="agent-entry" 
           data-agent-name="<%= name %>" 
-          data-agent-description="<%= tooltip.downcase %>">
+          data-agent-description="<%= tooltip.downcase.gsub("\n", '<br>') %>">
           <%= link_to name, ask_path(agent_id: id), class: "text-link", data: { turbo: false } %>
           </div>
     <% end %>
@@ -43,6 +43,9 @@
       <h3 class="heading-sub" id="agent-subheading">
         hover over an agent to see its details
       </h3>
+      <h3 style="opacity: 0;">
+        .<br>.<br>.
+      </h3>
     </div>
   </div>
 
@@ -51,32 +54,70 @@
 
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const agentHeading = document.getElementById("agent-heading");
-    const agentSubheading = document.getElementById("agent-subheading");
-    const defaultTitle = "Welcome to LPC AI Agent";
-    const defaultSubtitle = "Your internal assistant for everything Lloyd";
+document.addEventListener("DOMContentLoaded", () => {
+  const agentHeading = document.getElementById("agent-heading");
+  const agentSubheading = document.getElementById("agent-subheading");
+  const defaultTitle = "Welcome to LPC AI Agent";
+  const defaultSubtitle = "Your internal assistant for everything Lloyd";
+  const isMobile = () => window.innerWidth <= 1080;
 
-    function updateTextWithFade(element, newText) {
-      element.style.opacity = 0;
+  function updateTextWithFade(element, newText) {
+    element.style.opacity = 0;
+    setTimeout(() => {
+      element.innerHTML = newText;
+      element.style.opacity = 1;
+    }, 150);
+  }
 
-      setTimeout(() => {
-        element.textContent = newText;
-        element.style.opacity = 1;
-      }, 150); // match half the transition time
-    }
+  // Store selection state for mobile
+  let selectedEntry = null;
 
-    document.querySelectorAll(".agent-entry").forEach(entry => {
-      entry.addEventListener("mouseenter", () => {
+  document.querySelectorAll(".agent-entry").forEach(entry => {
+    const link = entry.querySelector('.text-link');
+
+    // Desktop: Use hover for details, click to go
+    entry.addEventListener("mouseenter", e => {
+      if (!isMobile()) {
         updateTextWithFade(agentHeading, entry.dataset.agentName);
         updateTextWithFade(agentSubheading, entry.dataset.agentDescription);
-      });
-
-      entry.addEventListener("mouseleave", () => {
+      }
+    });
+    entry.addEventListener("mouseleave", e => {
+      if (!isMobile()) {
         updateTextWithFade(agentHeading, defaultTitle);
         updateTextWithFade(agentSubheading, defaultSubtitle);
-      });
+      }
+    });
+
+    // Mobile: tap once for details, tap again to select
+    entry.addEventListener("click", function(e) {
+      if (!isMobile()) return; // Only on mobile
+      e.preventDefault(); // Prevent navigation by default
+
+      if (selectedEntry !== entry) {
+        // First tap: show details, highlight
+        if (selectedEntry) selectedEntry.classList.remove('selected');
+        selectedEntry = entry;
+        entry.classList.add('selected');
+        updateTextWithFade(agentHeading, entry.dataset.agentName);
+        updateTextWithFade(agentSubheading, entry.dataset.agentDescription);
+      } else {
+        // Second tap: proceed to link
+        window.location.href = link.href;
+      }
     });
   });
+
+  // Reset selection on window resize (mobile <-> desktop)
+  window.addEventListener("resize", () => {
+    if (!isMobile() && selectedEntry) {
+      selectedEntry.classList.remove('selected');
+      selectedEntry = null;
+      updateTextWithFade(agentHeading, defaultTitle);
+      updateTextWithFade(agentSubheading, defaultSubtitle);
+    }
+  });
+});
+
 </script>
 

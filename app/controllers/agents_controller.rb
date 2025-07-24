@@ -15,15 +15,17 @@ class AgentsController < ApplicationController
     @chat_history = get_full_chat_history
     session.delete(:last_bot_message_id) # ← one-time use
 
+    user_email = current_user['info']['email']
     base = Conversation
+      .where(user_email: user_email)
       .joins(:messages)
       .where(messages: { role: "user" })
       .distinct
-
-    # Always include the current conversation even if it has no user messages yet
+    
     @conversations = Conversation
+      .where(user_email: user_email)
       .where(id: base.select(:id))
-      .or(Conversation.where(id: @conversation.id))
+      .or(Conversation.where(user_email: user_email, id: @conversation.id))
       .order(updated_at: :desc)
       .limit(20)
   end
@@ -114,7 +116,7 @@ class AgentsController < ApplicationController
   def new_chat
     cleanup_empty_conversations # ⬅️ added
   
-    conversation = Conversation.create!(title: "New Chat")
+    @conversation = Conversation.create!(title: "New Chat", user_email: current_user['info']['email'])
     redirect_to ask_path(id: conversation.id)
   end
   
@@ -156,9 +158,12 @@ class AgentsController < ApplicationController
   def set_conversation
     if params[:id].present?
       @conversation = Conversation.find(params[:id])
+      if @conversation.user_email != current_user['info']['email']
+        redirect_to root_path, alert: "Access denied" and return
+      end
     else
       session[:agent_id] = params[:agent_id].to_i if params[:agent_id].present?
-      @conversation = Conversation.create!(title: "New Chat")
+      @conversation = Conversation.create!(title: "New Chat", user_email: current_user['info']['email'])
       redirect_to ask_path(id: @conversation.id, agent_id: session[:agent_id]) and return
     end
   end  
