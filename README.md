@@ -181,6 +181,7 @@ If you’re fronting Puma with Nginx+Certbot or another proxy, point it to the P
 
 ## 📁 File Structure Highlights
 
+```plaintext
 .
 ├── .DS_Store
 ├── .gitignore
@@ -262,7 +263,7 @@ If you’re fronting Puma with Nginx+Certbot or another proxy, point it to the P
     ├── audio
     │   └── audio-processor.js
     └── fonts
-
+```
 ---
 
 🧑‍💻 **Author**
