@@ -10,3 +10,6 @@ pin "marked" # @16.1.0
 pin "llm_chat", to: "llm_chat.js"
 pin "wav_encoder", to: "wav_encoder.js"
 
+pin_all_from "app/javascript/settings", under: "settings"
+
+

@@ -1,4 +1,5 @@
-<%= stylesheet_link_tag "llm_chat", media: "all" %>
+<%# app/views/agents/ask.html.erb %>
+
 <%= javascript_import_module_tag "llm_chat" %>
 
 <div class="llm-app-container">
@@ -12,7 +13,7 @@
         <% @conversations.each do |conv| %>
           <% safe_title = conv.title.gsub(/\*\*(.+?)\*\*/, '<span class="markdown-bold">\1</span>').html_safe %>
           <% tooltip_title = conv.title.gsub(/\*\*(.+?)\*\* - /, '') %>
-          <li class="conversation-item">
+          <li class="conversation-item" data-conversation-id="<%= conv.id %>">
             <%= link_to ask_path(id: conv.id, agent_id: session[:agent_id]), class: "conversation-title" do %>
               <%= safe_title %>
             <% end %>
@@ -46,6 +47,15 @@
       </div>
       <div class="llm-agent-controls">
         <div class="agent-action-group">
+
+          <%= link_to notifications_path, class: "notification-bell", data: { turbo: false } do %>
+            <%= image_tag "bell.svg", alt: "Notifications", class: "bell-icon" %>
+            <% if @has_updates %>
+              <span class="bell-dot"></span>
+            <% end %>
+            <span class="tooltip">Notifications</span>
+          <% end %>
+
           <%= button_to "Logout", logout_path, method: :delete, class: "logout-button", form_class: "logout-form" %>
           <%= link_to root_path, class: "agent-link", data: { turbo: false } do %>
             <span class="agent-label">
@@ -60,6 +70,13 @@
       <div id="header-extra" class="header-extra">
         <button class="header-extra-close" id="header-extra-close" aria-label="Close dropdown">&times;</button>
         <div class="agent-action-group">
+          <%= link_to notifications_path, class: "notification-bell", data: { turbo: false } do %>
+            <%= image_tag "bell.svg", alt: "Notifications", class: "bell-icon" %>
+            <% if @has_updates %>
+              <span class="bell-dot"></span>
+            <% end %>
+            <span class="tooltip">Notifications</span>
+          <% end %>
           <%= button_to "Logout", logout_path, method: :delete, class: "logout-button", form_class: "logout-form" %>
           <%= link_to root_path, class: "agent-link", data: { turbo: false } do %>
             <span class="agent-label">

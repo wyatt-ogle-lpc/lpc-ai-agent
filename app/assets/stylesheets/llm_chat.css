@@ -54,11 +54,17 @@
   font-style: normal;
 }
 
-body {
+html, body {
+  height: 100%;
   margin: 0;
-  min-height: 100vh;
+  font-weight: 100 !important;
+}
+
+/* Apply the flex layout to your main app container instead of the whole body */
+.llm-app-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; 
+  min-height: 100vh;
 }
 
 .llm-main {
@@ -619,6 +625,8 @@ button.llm-send svg {
   background: #f6f6f9;
   font-family: 'Proxima Nova Condensed Regular';
   position: relative;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 .llm-agent-select {
@@ -680,19 +688,6 @@ button.llm-send svg {
 .logout-btn:hover {
   text-decoration: underline;
   transform: scale(1.05);
-}
-
-
-@media (max-width: 768px) {
-  .llm-welcome-container {
-    flex-direction: column-reverse;
-    text-align: center;
-    padding: 40px 20px;
-  }
-
-  .llm-agent-select {
-    align-items: center;
-  }
 }
 
 .llm-login-container {
@@ -847,113 +842,8 @@ button.llm-send svg {
   animation: none;
 }
 
-.llm-welcome-container {
-  max-height: 100vh;
-  overflow-y: auto;
-}
 
-@media (max-width: 1080px) {
-  .llm-welcome-container {
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    justify-content: flex-start;
-    gap: 40px;
-    overflow-y: auto;
-  }
 
-  .llm-agent-select {
-    align-items: center;
-    text-align: center;
-  }
-
-  .select-title {
-    font-size: 3em;
-    margin-bottom: 25px;
-    margin-top: 10px; 
-  }
-
-  .agent-entry .text-link {
-    font-size: 2em;
-    margin-bottom: 15px;
-    white-space: normal;
-    text-align: center;
-  }
-
-  .logout-form {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    font-family: "Proxima Nova Condensed Bold";
-  }
-
-  .agent-entry {
-    flex-direction: column;
-  }
-
-  .agent-entry.selected .text-link {
-    color: #9c481a;
-    border-radius: 16px;
-  }
-
-  .llm-welcome-centerpiece {
-    position: static;
-    transform: none;
-    margin-top: 0;
-    max-width: 100%;
-    padding: 0 20px;
-  }
-
-  .centerpiece-static .logo-container .logo {
-    max-width: 150px !important;
-    margin: -10px auto 0px !important;
-  }
-
-  .heading-welcome {
-    font-size: 2em;
-    margin-top: 20px;
-    margin-bottom: 15px;
-  }
-
-  .heading-sub {
-    font-size: 1.2em;
-  }
-
-  #agent-subheading {
-    max-width: 100%;
-    line-height: 1;
-    padding: 0 10px;
-    word-break: break-word;
-}
-
-  .logout-btn {
-    font-size: 2em;
-    margin-top: 0;
-  }
-
-  html, body {
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .agent-entry:hover .text-link {
-    color: #9c481a;
-    font-family: 'Bebas Neue Bold';
-    transform: scale(1.1);
-  }
-
-  .background-mouse{
-    top: 10%;
-    right: -30%;
-    left: auto;
-  }
-  .bg-mouse-img {
-    width: 1000px;
-    max-width: none;
-  }
-  .llm-mic-button {
-    margin-left: 0 !important;
-  }
-}
 
 .llm-mic-button {
   background: none;
@@ -1046,9 +936,329 @@ body.sidebar-hidden #header-toggle-placeholder {
   padding-bottom: 16px; /* So last message isn't hidden by form */
 }
 
-@media (max-width: 1080px) {
-  llm-main {
-    position: relative;
+
+
+body.sidebar-hidden .llm-sidebar {
+  transform: translateX(-100%);
+  width: 0px;
+  padding: 0px;
+}
+
+
+
+.lang-select {
+  font-family: 'Proxima Nova Condensed Regular', Arial, sans-serif;
+  font-size: 1em;
+  padding: 8px 8px 8px 14px;
+  border: none;
+  border-radius: 16px;
+  background: #f7f7f7;
+  color: #9c481a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin-right: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+  position: relative;
+  min-width: 100px;
+  font-weight: bold;
+}
+
+/* Add a custom arrow using a background SVG */
+.lang-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239c481a' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 10px;
+}
+
+.lang-select option {
+  font-family: 'Proxima Nova Condensed Regular', Arial, sans-serif;
+  color: #1c1c1c;
+  font-size: 1em;
+}
+
+.header-extra {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  background: #f6f6f9;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+  position: absolute;
+  right: 22px;
+  top: 70px; /* below header; adjust as needed */
+  min-width: 200px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+}
+.header-extra.visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notification-bell {
+  margin-right: 15px;
+  display: inline-block;
+  position: relative; /* Required to position .bell-dot inside bell */
+}
+
+.bell-dot {
+  position: absolute;
+  top: 2px;
+  left: 3.5px;
+  width: 10px;
+  height: 10px;
+  background-color: #db0000;
+  border-radius: 50%;
+}
+
+.bell-icon {
+  width: 30px;
+  height: auto;
+  cursor: pointer;
+}
+
+.notification-bell-wrapper {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2000; /* Above background and text */
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  align-items: flex-end; /* align icons to the right */
+
+}
+
+.notification-bell-large .bell-icon-large {
+  width: 50px; /* bigger bell */
+  height: 50px;
+  margin: 20px 20px 0 0; /* adjust margin for larger bell */
+}
+
+.bell-dot-large {
+  position: absolute;
+  top: 20px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+  background-color: #db0000;
+  border-radius: 50%;
+}
+
+/* Ensure tooltip is hidden by default */
+.notification-bell .tooltip,
+.notification-bell-wrapper .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  font-size: 0.7em;
+  padding: 4px 8px 3px 8px;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+  bottom: 0;
+  right: 28px;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+
+
+/* Show tooltip on hover */
+.notification-bell:hover .tooltip {
+  visibility: visible;
+  opacity: 0.8;
+  font-size: 1.2em;
+  right: 70px;
+  bottom: 18px;
+}
+
+.profile-dropdown-wrapper {
+  display: inline-block;
+  position: relative;
+  margin-right: 15px;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-icon {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  margin: 20px 20px 0 0;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 80px; /* below the profile icon */
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  font-size: 0.95rem;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2000;
+  text-align: center;
+}
+
+
+
+.profile-dropdown.hidden {
+  display: none;
+}
+
+.profile-dropdown p {
+  margin: 0;
+  color: #444;
+  word-break: break-word;
+}
+
+.profile-dropdown .logout-form {
+  margin: 0;
+  padding: 0;
+  display: block;
+  border-top: 1px solid #eee;
+  padding-top: 6px;
+}
+
+.profile-dropdown .logout-form .dropdown-logout {
+  background: none;
+  border: none;
+  color: #c00;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 4px 0;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+}
+
+.dropdown-logout:hover {
+  text-decoration: underline !important;
+}
+
+
+.agent-action-group .notification-bell .tooltip{
+  right: 30px;
+  bottom: 5px;
+  font-size: 1em;
+}
+
+.settings-icon {
+  display: inline-block;
+  position: relative;
+  margin-right: 15px;
+}
+
+.settings-icon-img {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  margin: 20px 20px 0 0;
+}
+
+.settings-icon:hover .tooltip {
+  visibility: visible;
+  opacity: 0.8;
+  font-size: 1.2em;
+  right: 70px;
+  bottom: 18px;
+}
+
+.notifications-container {
+  font-family: 'Proxima Nova SCOSF Condensed Bold';
+  margin: 40px;
+  background: #f6f6f9; /* matches chat container background */
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 30px;
+  color: #1c1c1c;
+}
+
+.notification-list {
+  font-family: 'Proxima Nova Condensed Regular';
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-list .title {
+  font-family: 'Proxima Nova SCOSF Condensed Bold';
+  font-size: 1.6em;
+  color: #813910;
+}
+
+.notification-list .markdown-bold {
+  font-family: 'Proxima Nova Condensed Bold';
+}
+
+.notification-item {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  font-size: 1.05em;
+  line-height: 1.4;
+  transition: background 0.2s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none; /* remove border for last item */
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-family: 'Proxima Nova Condensed Regular';
+  font-size: 1.2em;
+  color: #9c481a; /* matches button/link accent color */
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #813910; /* darker shade on hover */
+}
+
+
+
+@media (min-width: 769px) {
+  .header-extra,
+  .header-extra-toggle {
+    display: none !important;
+  }
+
+  body.sidebar-hidden .llm-chat-header {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    padding: 20px 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .llm-main {
+    padding: 0;
   }
 
   .llm-chat-container {
@@ -1058,10 +1268,10 @@ body.sidebar-hidden #header-toggle-placeholder {
     right: 0;
     display: flex;
     flex-direction: column;
-    margin: 10px 20px;
+    margin: 10px;
     max-width: 1020px;
     padding: 15px 15px 0;
-    max-height: calc(100vh - 200px);  /* leave space for header and form */
+    max-height: calc(100vh - 100px); 
     overflow-y: auto;
     overscroll-behavior: contain;      /* prevents body bounce on iOS */
   }
@@ -1083,11 +1293,12 @@ body.sidebar-hidden #header-toggle-placeholder {
     white-space: nowrap;
     overflow: hidden;
     white-space: nowrap;
+    margin: 0;
     }
 
   button.llm-send {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     margin-left: 0 !important;
   }
 
@@ -1097,8 +1308,8 @@ body.sidebar-hidden #header-toggle-placeholder {
   }
 
   button.llm-send svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .logo {
@@ -1111,7 +1322,7 @@ body.sidebar-hidden #header-toggle-placeholder {
   }
 
   .header-extra {
-    position: fixed !important;
+    position: fixed;
     left: 0 !important;
     top: 0 !important;
     right: 0 !important;
@@ -1123,11 +1334,11 @@ body.sidebar-hidden #header-toggle-placeholder {
     z-index: 2000 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    opacity: 1;
+    opacity: 0;
     padding: 0;
     pointer-events: auto;
     transition: opacity 0.2s;
@@ -1153,6 +1364,24 @@ body.sidebar-hidden #header-toggle-placeholder {
     text-align: center;
     justify-content: center;
     border-radius: 18px;
+  }
+
+  .header-extra .notification-bell {
+    margin: 0;
+    margin-top: 20px;
+    margin-bottom: -20px;
+  }
+
+  .header-extra .notification-bell .bell-icon{
+    width: 36px;
+    height: auto;
+  }
+
+  .header-extra .bell-dot{
+    width: 12px;
+    height: 12px;
+    top: 2px;
+    left: 4px;
   }
 
   .header-extra .agent-link {
@@ -1260,6 +1489,9 @@ body.sidebar-hidden #header-toggle-placeholder {
     min-height: 80px;
     grid-template-columns: 1fr auto 1fr;
     border-bottom: 2px solid #ddd;
+    width: 100vw;
+    padding: 20px 0;
+    margin: 0 auto;
   }
 
   .header-extra-toggle {
@@ -1311,82 +1543,1140 @@ body.sidebar-hidden #header-toggle-placeholder {
 
 }
 
-body.sidebar-hidden .llm-sidebar {
-  transform: translateX(-100%);
-  width: 0px;
-  padding: 0px;
+@media (max-width: 768px) {
+
+  .notification-bell-wrapper {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    z-index: 2000; /* Above background and text */
+  }
+
+  .notification-bell-wrapper .tooltip {
+    display: none !important;
+    opacity: 0;
+  }
+  
+  .notification-bell-large .bell-icon-large {
+    width: 30px; /* bigger bell */
+    height: 30px;
+    margin: 10px 0 0 0; /* adjust margin for larger bell */
+  }
+  
+  .bell-dot-large {
+    position: absolute;
+    top: 10px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    background-color: red;
+    border-radius: 50%;
+  }
+
+  .settings-icon {
+    display: inline-block;
+    position: relative;
+    margin-right: 15px;
+  }
+  
+  .settings-icon-img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin: 10px 0 0 0;
+  }
+
+  .profile-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin: 10px 0 0 0; 
+  }
+
+  .profile-dropdown{
+    top: auto;
+
+  }
+
+  .profile-dropdown p {
+    font-size: 1em;
+  }
+  
+  .settings-icon:hover .tooltip {
+    visibility: visible;
+    opacity: 0.8;
+    font-size: 1.2em;
+    right: 70px;
+    bottom: 18px;
+  }
+
+  .llm-welcome-container {
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    justify-content: flex-start;
+    gap: 40px;
+    overflow-y: auto;
+  }
+
+  .llm-agent-select {
+    align-items: center;
+    text-align: center;
+  }
+
+  .select-title {
+    font-size: 3em;
+    margin-bottom: 25px;
+    margin-top: 10px; 
+  }
+
+  .agent-entry .text-link {
+    font-size: 2em;
+    margin-bottom: 15px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .logout-form {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    font-family: "Proxima Nova Condensed Bold";
+  }
+
+  .agent-entry {
+    flex-direction: column;
+  }
+
+  .agent-entry.selected .text-link {
+    color: #9c481a;
+    border-radius: 16px;
+  }
+
+  .llm-welcome-centerpiece {
+    position: static;
+    transform: none;
+    margin-top: 0;
+    max-width: 100%;
+    padding: 0 20px;
+  }
+
+  .centerpiece-static .logo-container .logo {
+    max-width: 150px !important;
+    margin: -10px auto 0px !important;
+  }
+
+  .heading-welcome {
+    font-size: 2em;
+    margin-top: 20px;
+    margin-bottom: 15px;
+  }
+
+  .heading-sub {
+    font-size: 1.2em;
+  }
+
+  #agent-subheading {
+    max-width: 100%;
+    line-height: 1;
+    padding: 0 10px;
+    word-break: break-word;
+  }
+
+  .logout-btn {
+    font-size: 1.8em;
+    margin-top: 0;
+  }
+
+  html, body {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .agent-entry:hover .text-link {
+    color: #9c481a;
+    font-family: 'Bebas Neue Bold';
+    transform: scale(1.1);
+  }
+
+  .background-mouse{
+    top: 10%;
+    right: -30%;
+    left: auto;
+  }
+  .bg-mouse-img {
+    width: 1000px;
+    max-width: none;
+  }
+  .llm-mic-button {
+    margin-left: 0 !important;
+    padding: 8px 0 8px 6px;
+  }
+
+  .notifications-container{
+    margin: 5px;
+    padding: 20px;
+  }
+
+  .llm-agent-select {
+    align-items: center;
+  }
 }
 
 
+/* ===== SETTINGS PAGE ===== */
 
-.lang-select {
-  font-family: 'Proxima Nova Condensed Regular', Arial, sans-serif;
+.agent-overview-read-only-header {
+  display: flex;
+}
+
+.read-only-banner {
+  top: 12px;
+  right: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: 'Proxima Nova Condensed Bold';
+  color: #333;
+  opacity: 0.8;
   font-size: 1em;
-  padding: 8px 8px 8px 14px;
-  border: none;
+  z-index: 2; 
+  cursor: default; 
+  position: static; 
+  margin: 0 0 16px auto;
+}
+
+.read-only-banner .lock-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.read-only-banner .tooltip {
+  position: absolute;
+  right: 13%;
+  top: 13px;
+  max-width: 220px;          /* limit width */
+  white-space: normal;       /* allow text to wrap */
+  word-break: break-word;    /* wrap long words if needed */
+  text-align: center;
+  background: #000;
+  border-radius: 4px;
+  font-size: 0.8em;
+  padding: 4px 8px;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  height: auto;
+  bottom: auto;
+}
+
+.read-only-banner:hover .tooltip{
+  opacity: 0.8;
+  visibility: visible;
+}
+
+.settings-header, 
+.notifications-header{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.settings-header .back-link,
+.notifications-header .back-link {
+  position: absolute;
+  left: 0; /* sticks to the left edge */
+  text-decoration: none;
+}
+
+.settings-header h1 {
+  text-align: center;
+}
+
+
+#agent-form-container {
+  margin-top: 2rem;
+  font-family: 'Proxima Nova Condensed Regular';
+  color: #1c1c1c;
+  background: #f6f6f9;
   border-radius: 16px;
-  background: #f7f7f7;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  padding: 24px 28px;
+  margin-left: 3%;
+  margin-right: 3%;
+  z-index: 1; /* lower than overlay */
+  max-width: 1000px;
+  margin: auto;
+  position: relative;
+}
+
+#agent-form-container:empty {
+  display: none !important;
+}
+
+/* Headings */
+#agent-form-container h2 {
+  font-family: 'Bebas Neue Bold';
+  font-size: 2.2em;
+  margin: 8px 0 16px 0;
+  color: #1c1c1c;
+}
+
+#agent-form-container h3 {
+  font-family: 'Proxima Nova SCOSF Condensed Bold';
+  font-size: 1.5em;
+  font-weight: 100;
+  margin: 20px 0 10px;
   color: #9c481a;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
+
+/* Section blocks (match chat container aesthetic) */
+#agent-form-container .section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+}
+
+/* Labels & Inputs */
+#agent-form-container label {
+  font-family: 'Proxima Nova Condensed Bold';
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1em;
+  color: #1c1c1c;
+}
+
+.overview-line {
+  display: flex;
+  gap: 6px; /* space between label and value */
+  margin: 4px 0;
+  font-family: 'Proxima Nova Condensed Regular';
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.overview-line .overview-header {
+  font-family: 'Proxima Nova Condensed Bold';
+  font-size: 1.2em;
+  color: #000;
+  align-self: center;
+}
+.overview-line .overview-value {
+  color: #555;
+  align-self: center;
+}
+
+.name.clickable {
+  font-family: 'Proxima Nova Condensed Bold';
+  font-size: 1.2em;
+  color: #000;
+  align-self: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.name.clickable:hover {
+  color: #9c481a;
+}
+
+#agent-form-container input[type="text"],
+#agent-form-container input[type="number"],
+#agent-form-container textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-family: 'Proxima Nova Condensed Regular';
+  background: #f1f1f1;
+  transition: border-color 0.2s;
+}
+
+#agent-form-container textarea {
+  max-height: 400px;
+  margin-top: 12px;
+  padding: 16px 20px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  display: block;
+  align-self: stretch;
+  margin-bottom: 16px;
+}
+
+#agent-form-container input:focus,
+#agent-form-container textarea:focus {
+  outline: none;
+  border-color: #9c481a;
+  box-shadow: 0 0 0 2px rgba(156, 72, 26, 0.1);
+}
+
+/* Lists (Knowledge Bases, Functions, Guardrails) */
+#agent-form-container ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#agent-form-container li {
+  font-size: 1em;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#agent-form-container li:last-child {
+  border-bottom: none;
+}
+
+/* Buttons (Match Send Button Accent) */
+#agent-form-container button {
+  background: #9c481a;
+  color: #fff;
+  font-family: 'Proxima Nova SCOSF Condensed Bold';
+  font-size: 1em;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+#agent-form-container button:hover {
+  background: #7e3813;
+  transform: scale(1.03);
+}
+
+/* Responsive tweaks for mobile */
+@media (max-width: 768px) {
+  #agent-form-container {
+    padding: 12px;
+    margin: 10px;
+  }
+
+  #agent-form-container h2 {
+    font-size: 1.8em;
+    text-align: center;
+  }
+
+  #agent-form-container h3 {
+    font-size: 1.3em;
+  }
+}
+
+/* ===== Agent Settings Page Header & Dropdown ===== */
+
+.instructions-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.char-counter {
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+}
+
+.instructions-text {
+  font-family: 'Proxima Nova Condensed Regular';
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  white-space: pre-wrap;     /* preserve formatting but allow wrapping */
+  word-wrap: break-word;     /* prevent long words from overflowing */
+  overflow-x: auto;          /* allow horizontal scroll if absolutely needed */
+  font-size: 1em;
+  line-height: 1.5;
+  max-height: 400px;         /* prevent giant overflow */
+  overflow-y: auto;          /* scroll vertically if too tall */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+
+.instructions-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.instructions-container .instructions-edit,
+    .instructions-container .instructions-actions {
+      box-sizing: border-box;
+    }
+
+.settings-container {
+  margin: 40px;
+  font-family: 'Proxima Nova Condensed Regular';
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+}
+
+.settings-container .back-link,
+.notifications-container .back-link {
+  display: inline-block;
+  margin: 20px 0 20px auto;  
+  margin-left: 8%;
+  font-size: 1.4em;
+  color: #9c481a;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.settings-container .back-link:hover,
+.notifications-container .back-link:hover {
+  color: #813910;
+  text-decoration: underline;
+}
+
+h1 {
+  font-family: 'Bebas Neue Bold';
+  font-size: 3em;
+  color: #1c1c1c;
+  text-align: center;
+  margin-bottom: 24px;
+  margin-top: 20px;
+}
+
+/* Dropdown container */
+#agent-select {
+  display: block;
+  margin: 0 auto 30px;
+  padding: 10px 16px;
+  font-family: 'Proxima Nova Condensed Regular';
+  font-size: 1.2em;
+  color: #9c481a;
+  border: none;
+  border-radius: 24px;
+  background: #f7f7f7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  margin-right: 6px;
-  outline: none;
   cursor: pointer;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+  min-width: 220px;
+  text-align: center;
   position: relative;
-  min-width: 100px;
-  font-weight: bold;
 }
 
-/* Add a custom arrow using a background SVG */
-.lang-select {
+/* Hover/focus */
+#agent-select:hover,
+#agent-select:focus {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Add arrow indicator similar to .lang-select */
+#agent-select {
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239c481a' stroke-width='2'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px 10px;
+  padding-right: 32px; /* space for arrow */
 }
 
-.lang-select option {
-  font-family: 'Proxima Nova Condensed Regular', Arial, sans-serif;
+/* Options inside select */
+#agent-select option {
+  font-family: 'Proxima Nova Condensed Regular';
   color: #1c1c1c;
   font-size: 1em;
 }
 
-.header-extra {
-  display: none;
-  flex-direction: column;
-  align-items: flex-end;
-  background: #f6f6f9;
-  border-radius: 0 0 18px 18px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.10);
-  position: absolute;
-  right: 22px;
-  top: 70px; /* below header; adjust as needed */
-  min-width: 200px;
-  z-index: 100;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s;
-}
-.header-extra.visible {
-  display: flex;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-@media (min-width: 1081px) {
-  .header-extra,
-  .header-extra-toggle {
-    display: none !important;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-container .back-link, 
+  .notifications-container .back-link {
+    margin-left: 0;
+  }
+  h1 {
+    font-size: 2em;
+    margin-bottom: 16px;
   }
 
-  body.sidebar-hidden .llm-chat-header {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto;
-    align-items: center;
-    padding: 20px 0;
-    width: 100%;
+  .settings-container {
+    margin: 10px;
+    padding: 20px 10px 0 10px
+  }
+
+  #agent-select {
+    font-size: 1em;
+    padding: 8px 14px;
+    min-width: 180px;
+  }
+}
+
+
+/* ====== MODAL STYLES ====== */
+
+.kb-modal-overlay {
+  position: fixed; /* or absolute if the parent is the viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  /* You might also need a background-color and a high z-index */
+  background-color: rgba(0, 0, 0, 0.5); /* Example semi-transparent background */
+  z-index: 9999; /* Ensure it's above other content */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  font-weight: 100 !important;
+}
+
+.kb-modal {
+  background: #f6f6f9;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-family: 'Proxima Nova Condensed Regular';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Adjusts the element's position based on its own size */
+  /* Ensure the parent (.kb-modal-overlay.active) has position: relative, absolute, fixed, or sticky */
+  transition: transform 1s ease;
+}
+
+.kb-modal h2 {
+  font-family: 'Proxima Nova Condensed Bold';
+  font-size: 1.8em;
+  margin-bottom: 20px;
+  color: #1c1c1c;
+  text-align: center;
+  font-weight: 100;
+}
+.kb-modal h3 {
+  font-weight: 100;
+}
+
+.kb-modal p {
+  margin: 12px 0;
+  font-size: 1.1em;
+  line-height: 1.4;
+  color: #1c1c1c;
+}
+
+.kb-modal p strong {
+  font-family: 'Proxima Nova Condensed Bold';
+  color: #9c481a;
+  font-weight: 100;
+}
+
+.kb-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+  color: #9c481a;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.kb-modal-close:hover {
+  background: rgba(156, 72, 26, 0.1);
+  transform: scale(1.1);
+}
+
+.kb-modal-overlay.active {
+  position: fixed; /* or absolute if the parent is the viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  /* You might also need a background-color and a high z-index */
+  background-color: rgba(0, 0, 0, 0.5); /* Example semi-transparent background */
+  z-index: 9999; /* Ensure it's above other content */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.kb-modal .modal-btn {
+  font-family: 'Proxima Nova SCOSF Condensed Light';
+  background: #9c481a;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.kb-modal .modal-btn:hover {
+  background: #813910;
+}
+
+.kb-modal .styled-textarea {
+  font-family: 'Proxima Nova Condensed Regular';
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.kb-modal .styled-textarea:focus {
+  border-color: #813910;
+  outline: none;
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+.kb-modal .schema-section h3 {
+  font-family: 'Proxima Nova Condensed Bold';
+  color: #9c481a;
+}
+
+.kb-modal .schema-section .schema-note {
+  font-family: 'Proxima Nova Condensed Regular';
+  color: #000;
+  font-size: 0.9em;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .kb-modal {
+    padding: 20px 25px;
+  }
+  
+  .kb-modal h2 {
+    font-size: 1.6em;
+    margin-bottom: 15px;
+  }
+  
+  .kb-modal p {
+    font-size: 1em;
+  }
+
+  .read-only-banner{
+    margin-top: 10px;
+    margin-right: 5px;
+  }
+}
+
+/* === Model Configuration Block === */
+.model-config-group {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  margin: 20px 0;
+  font-family: 'Proxima Nova Condensed Regular';
+  color: #1c1c1c;
+  border: 1px solid #e0e0e0;
+}
+
+/* Labels */
+.model-config-group label {
+  font-family: 'Proxima Nova Condensed Bold';
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.05em;
+  color: #1c1c1c;
+}
+
+/* Sliders row */
+.model-config-group .slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.model-config-group .slider-row .min,
+.model-config-group .slider-row .max {
+  font-size: 0.9em;
+  color: #555;
+  width: 24px;
+  text-align: center;
+}
+
+/* Range input (slider) */
+.model-config-group input[type="range"] {
+  flex: 1;
+  cursor: pointer;
+  accent-color: #9c481a; /* modern browsers */
+}
+
+/* Number input (manual override) */
+.model-config-group .manual-input {
+  width: 60px !important;
+  padding: 6px !important;
+  font-size: 0.95em !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
+  background: #f9f9f9 !important;
+  font-family: 'Proxima Nova Condensed Regular' !important;
+  text-align: center !important;
+}
+
+/* Dropdown for retrieval method */
+.model-config-group select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 1em;
+  font-family: 'Proxima Nova Condensed Regular';
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+  color: #1c1c1c;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.model-config-group select:focus {
+  border-color: #9c481a;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(156, 72, 26, 0.1);
+}
+
+/* Save button */
+.model-config-group .save-model-config {
+  background: #9c481a;
+  color: #fff;
+  font-family: 'Proxima Nova SCOSF Condensed Bold';
+  font-size: 1em;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  display: inline-block;
+}
+
+.model-config-group .save-model-config:hover {
+  background: #7e3813;
+  transform: scale(1.03);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .model-config-group {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .model-config-group label {
+    font-size: 1em;
+  }
+
+  .model-config-group .slider-row {
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .model-config-group .manual-input {
+    width: 50px;
+  }
+}
+
+
+.config-tooltip-wrapper {
+  position: relative;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  display: inline-block !important;
+  width: auto; 
+}
+
+.config-tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 280px;
+  background: #813910;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px 4px;
+  position: absolute;
+  font-size: 12px;
+  transition: opacity 0.2s;
+  z-index: 10;
+  margin-left: 8px;
+}
+
+.config-tooltip-wrapper:hover .config-tooltip-text {
+  visibility: visible;
+  opacity: 0.9;
+}
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.dropdown-selected {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-name {
+  font-family: 'Proxima Nova Condensed Bold';
+}
+
+.dropdown-description {
+  font-size: 0.85em;
+  color: #333;
+}
+
+.dropdown-list {
+  display: none;
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  z-index: 1000;
+}
+
+.dropdown-list.show {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 8px 10px !important;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.version-list.hidden{
+  display: none;
+}
+
+.version-header{
+  font-family: 'Proxima Nova Condensed Bold';
+  margin-bottom: 8px;
+  font-size: 1.2em;
+  display: block;
+}
+
+#version-name-input, 
+#version-description-input{
+  margin-top: 0 !important;
+  box-sizing: border-box;
+}
+
+.rollback-btn {
+  margin: 0 0 0 4px;
+  font-size: 0.8em !important;
+  padding: 6px 12px !important;
+}
+
+.current-version {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 8px;
+}
+
+#version-section h3{
+  margin: 20px 0 0 0;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Adjust based on space */
+}
+
+.loading-spinner::after {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top-color: #9c481a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.inline-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  vertical-align: middle;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.toggle-key{
+  background: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+  margin: 2px 0 0 6px !important;
+  cursor: pointer !important;
+  opacity: 0.6 !important;
+  transition: opacity 0.2s ease !important;
+  vertical-align: middle !important;
+}
+
+.toggle-key:hover {
+  opacity: 1 !important;
+}
+
+.toggle-key img {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  pointer-events: none;
+}
+
+/* ====== GUARDRAIL MODAL STYLES ====== */
+
+.guardrail-modal-overlay {
+  position: fixed; /* or absolute if the parent is the viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  background-color: rgba(0, 0, 0, 0.5); /* Example semi-transparent background */
+  z-index: 9999; /* Ensure it's above other content */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  font-weight: 100 !important;
+}
+
+.guardrail-modal {
+  background: #f6f6f9;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-family: 'Proxima Nova Condensed Regular';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 1s ease;
+}
+
+.guardrail-modal h2 {
+  font-family: 'Proxima Nova Condensed Bold';
+  font-size: 1.8em;
+  margin-bottom: 20px;
+  color: #1c1c1c;
+  text-align: center;
+  font-weight: 100;
+}
+
+.guardrail-modal h3 {
+  font-weight: 100;
+}
+
+.guardrail-modal p {
+  margin: 12px 0;
+  font-size: 1.1em;
+  line-height: 1.4;
+  color: #1c1c1c;
+}
+
+.guardrail-modal p strong {
+  font-family: 'Proxima Nova Condensed Bold';
+  color: #9c481a;
+  font-weight: 100;
+}
+
+.guardrail-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+  color: #9c481a;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.guardrail-modal-close:hover {
+  background: rgba(156, 72, 26, 0.1);
+  transform: scale(1.1);
+}
+
+.guardrail-modal-overlay.active {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .guardrail-modal {
+    padding: 20px 25px;
+  }
+
+  .config-tooltip-text{
+    max-width: 180px
   }
 }

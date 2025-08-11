@@ -1,3 +1,5 @@
+//app/javascript/llm_chat.js
+
 import { marked } from "marked";
 import { encodeWAV } from "wav_encoder";
 
@@ -55,6 +57,17 @@ document.addEventListener("turbo:load", () => {
     userDiv.className = "llm-message-row";
     userDiv.innerHTML = `<div class="llm-message llm-user">${escapeHtml(prompt)}</div>`;
     chatLog.appendChild(userDiv);
+
+    const currentItem = document.querySelector(`.conversation-item[data-conversation-id="${conversationId}"]`);
+    if (currentItem) {
+      const currentLink = currentItem.querySelector(".conversation-title");
+      if (currentLink && currentLink.innerText.trim().startsWith("New Chat")) {
+        let agentName = document.querySelector(".agent-label")?.textContent.trim() || "Agent";
+        agentName = agentName.replace("Switch Agent", "").trim();
+        updateConversationTitle(`**${agentName}** - ${prompt}`, conversationId);
+      }
+    }
+
     const botDiv = document.createElement("div");
     botDiv.className = "llm-message-row";
     botDiv.innerHTML = `<div class="llm-message llm-bot" id="bot-response" data-animate><div class="llm-dots"><span></span><span></span><span></span></div></div>`;
@@ -75,6 +88,10 @@ document.addEventListener("turbo:load", () => {
       const data = await response.json();
       const content = data.reply?.trim() || "";
       animateBotResponse(content);
+
+      if (data.updated_title) {
+        updateConversationTitle(data.updated_title, conversationId);
+      }
     } finally {
       isSending = false;
       toggleSendButton(true);
@@ -180,7 +197,7 @@ document.addEventListener("turbo:load", () => {
     }
   }
   function autoHideSidebarOnResize() {
-    if (window.innerWidth <= 1080) {
+    if (window.innerWidth <= 768) {
       if (!document.body.classList.contains('sidebar-hidden')) {
         document.body.classList.add('sidebar-hidden');
       }
@@ -213,18 +230,18 @@ document.addEventListener("turbo:load", () => {
   const headerExtra = document.getElementById('header-extra');
   if (headerToggleBtn && headerExtra) {
     headerToggleBtn.addEventListener('click', () => {
-      if (window.innerWidth <= 1080) {
+      if (window.innerWidth <= 768) {
         headerExtra.classList.toggle('visible');
       }
     });
     window.addEventListener('resize', () => {
-      if (window.innerWidth > 1080) {
+      if (window.innerWidth > 768) {
         headerExtra.classList.remove('visible');
       }
     });
     document.addEventListener('click', (event) => {
       if (
-        window.innerWidth <= 1080 &&
+        window.innerWidth <= 768 &&
         headerExtra.classList.contains('visible') &&
         !headerExtra.contains(event.target) &&
         event.target !== headerToggleBtn
@@ -245,7 +262,7 @@ document.addEventListener("turbo:load", () => {
     const select = document.getElementById('language-select');
     if (!select) return;
     const options = select.options;
-    if (window.innerWidth <= 1080) {
+    if (window.innerWidth <= 768) {
       if (options[0].text !== "En") options[0].text = "En";
       if (options[1].text !== "Es") options[1].text = "Es";
     } else {
@@ -256,6 +273,7 @@ document.addEventListener("turbo:load", () => {
   window.addEventListener('resize', updateLanguageLabels);
   document.addEventListener('DOMContentLoaded', updateLanguageLabels);
   updateLanguageLabels();
+  
 });
 
 // ======= HELPERS =======
@@ -285,7 +303,7 @@ function animateBotResponse(content, el = null) {
       if (charIndex < raw.length) {
         charIndex++;
         scrollToBottom();
-        setTimeout(typeChar, 15 + Math.random() * 20);
+        setTimeout(typeChar, 10 + Math.random() * 15);
       } else {
         lastBot.removeAttribute("id");
         requestAnimationFrame(() => scrollToBottom());
@@ -300,11 +318,13 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 function scrollToBottom() {
-  // Prefer scrolling the chat log container (the message list itself)
-  const chatLog = document.getElementById('llm-chat-log');
-  if (chatLog && chatLog.scrollHeight > 0) {
-    chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
-    return;
+  // Prefer scrolling the chat log container (the message list itself) if window width is under 768
+  if (window.innerWidth < 768) {
+    const chatLog = document.getElementById('llm-chat-log');
+    if (chatLog && chatLog.scrollHeight > 0) {
+      chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
+      return;
+    }
   }
   // Fallback: scroll the main chat area
   const mainContainer = document.querySelector('.llm-main');
@@ -362,3 +382,21 @@ function speakText(text) {
     })
     .catch(() => {});
 }
+
+function updateConversationTitle(newTitle, conversationId) {
+  // Find active conversation link in sidebar
+  const activeItem = document.querySelector(`.conversation-item[data-conversation-id="${conversationId}"]`);
+  if (!activeItem) return;
+
+  const activeLink = activeItem.querySelector(".conversation-title");
+  // Update its HTML to match server formatting
+  const safeTitle = newTitle.replace(/\*\*(.+?)\*\*/, '<span class="markdown-bold">$1</span>');
+  activeLink.innerHTML = safeTitle;
+
+  // Update tooltip text (strip "**Agent** - ")
+  const tooltip = activeLink.closest(".conversation-item").querySelector(".tooltip");
+  if (tooltip) {
+    tooltip.textContent = newTitle.replace(/\*\*(.+?)\*\* - /, "");
+  }
+}
+

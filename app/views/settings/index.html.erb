@@ -1,0 +1,25 @@
+<%# app/views/settings/index.html.erb %>
+<% content_for :head do %>
+    <%= javascript_import_module_tag "settings" %>
+    <%= stylesheet_link_tag "llm_chat", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="settings-container">
+  <div class="settings-header">
+    <%= link_to "← Exit", "javascript:history.back()", class: "back-link" %>
+    <h1>Agent Settings</h1>
+  </div>
+
+
+
+  <select id="agent-select">
+    <option value="">-- Select Agent --</option>
+
+
+    <% @agents.each do |name, uuid| %>
+      <option value="<%= uuid %>"><%= name %></option>
+    <% end %>
+  </select>
+
+  <div id="agent-form-container"></div>
+</div>

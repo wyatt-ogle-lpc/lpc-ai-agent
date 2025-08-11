@@ -10,12 +10,15 @@ class AgentsController < ApplicationController
   
 
   def ask
+    unless current_user
+      redirect_to login_path, alert: "You must be logged in to view conversations" and return
+    end
     session[:agent_id] = params[:agent_id].to_i if params[:agent_id].present?
 
     @chat_history = get_full_chat_history
     session.delete(:last_bot_message_id) # ← one-time use
 
-    user_email = current_user['info']['email']
+    user_email = current_user&.dig('info', 'email')
     base = Conversation
       .where(user_email: user_email)
       .joins(:messages)
@@ -114,10 +117,14 @@ class AgentsController < ApplicationController
   
 
   def new_chat
-    cleanup_empty_conversations # ⬅️ added
+    cleanup_empty_conversations
   
-    @conversation = Conversation.create!(title: "New Chat", user_email: current_user['info']['email'])
-    redirect_to ask_path(id: conversation.id)
+    unless current_user
+      redirect_to login_path, alert: "You must be logged in to start a chat" and return
+    end
+  
+    @conversation = Conversation.create!(title: "New Chat", user_email: current_user.dig('info', 'email'))
+    redirect_to ask_path(id: @conversation.id)
   end
   
   def cleanup_empty_conversations
@@ -129,7 +136,7 @@ class AgentsController < ApplicationController
   end
 
   def destroy
-    conversation = Conversation.find(params[:id])
+    conversation = Conversation.find_by!(id: params[:id], user_email: current_user&.dig('info', 'email'))
     conversation.destroy!
   
     # Find next available conversation with messages
@@ -156,14 +163,14 @@ class AgentsController < ApplicationController
   private
 
   def set_conversation
+    unless current_user
+      redirect_to login_path, alert: "You must be logged in to continue" and return
+    end
     if params[:id].present?
-      @conversation = Conversation.find(params[:id])
-      if @conversation.user_email != current_user['info']['email']
-        redirect_to root_path, alert: "Access denied" and return
-      end
+      @conversation = Conversation.find_by!(id: params[:id], user_email: current_user&.dig('info', 'email'))
     else
       session[:agent_id] = params[:agent_id].to_i if params[:agent_id].present?
-      @conversation = Conversation.create!(title: "New Chat", user_email: current_user['info']['email'])
+      @conversation = Conversation.create!(title: "New Chat", user_email: current_user&.dig('info', 'email'))
       redirect_to ask_path(id: @conversation.id, agent_id: session[:agent_id]) and return
     end
   end  

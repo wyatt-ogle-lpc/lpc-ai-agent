@@ -1,0 +1,16 @@
+<%# app/views/notifications/index.html.erb %>
+
+<div class="notifications-container">
+    <div class="notifications-header">
+        <%= link_to "← Back", "javascript:history.back()", class: "back-link" %>
+        <h1>Notifications</h1>
+    </div>
+    <ul class="notification-list">
+        <% @notifications.each do |note| %>
+            <li class="notification-item">
+                <span class="title"><%= note[:title] %></span><br>
+                <span><%= simple_format(note[:body]) %></span>
+            </li>
+        <% end %>
+    </ul>
+</div>

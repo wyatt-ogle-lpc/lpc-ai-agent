@@ -1,3 +1,5 @@
+<%# app/views/home/index.html.erb %>
+
 <% agent_tooltips = {
   0 => ["Clypboard Assistant", "Clypboard Assistant retrieves Work orders, schedules, leads & Clypboard data\nPerfect for any Clypboard retrieval"],
   1 => ["Handbook Helper", "Handbook Helper knows PTO, policies, HR rules & employee guidelines\nPerfect for HR questions"],
@@ -8,6 +10,34 @@
 
 
 <div class="llm-welcome-container">
+  <div class="notification-bell-wrapper">
+    <%= link_to notifications_path, class: "notification-bell notification-bell-large", data: { turbo: false } do %>
+      <%= image_tag "bell.svg", alt: "Notifications", class: "bell-icon bell-icon-large" %>
+      <% if @has_updates %>
+        <span class="bell-dot bell-dot-large"></span>
+      <% end %>
+      <span class="tooltip">Notifications</span>
+    <% end %>
+
+    <%= link_to settings_path, class: "settings-icon", data: { turbo: false } do %>
+      <%= image_tag "settings.svg", alt: "Settings", class: "settings-icon-img" %>
+      <span class="tooltip">Settings</span>
+    <% end %>
+
+    <div class="profile-dropdown-wrapper">
+      <button class="profile-btn">
+        <%= image_tag "profile.svg", alt: "Profile", class: "profile-icon" %>
+      </button>
+    
+      <div class="profile-dropdown hidden">
+        <p><%= current_user['info']['name'] %></p>
+        <p><%= current_user['info']['email'] %></p>
+        <p>Role: <%= current_user['role'].capitalize %></p>
+        <%= button_to "Logout", logout_path, method: :delete, class: "dropdown-logout", form_class: "logout-form" %>
+      </div>
+    </div>
+    
+  </div>
   <!-- Giant background image -->
   <div class="background-mouse">
     <%= image_tag "mouse.png", alt: "", class: "bg-mouse-img" %>
@@ -35,16 +65,13 @@
         <%= image_tag "mouse.png", alt: "LPC Logo", class: "logo" %>
       </div>
       <h1 class="heading-welcome" id="agent-heading">
-        Welcome to LPC AI Agent
+        Hello, <%= current_user['info']['first_name'] %><br>Welcome to the LPC AI Agent
       </h1>
     </div>
 
     <div class="heading-sub-wrapper">
       <h3 class="heading-sub" id="agent-subheading">
         hover over an agent to see its details
-      </h3>
-      <h3 style="opacity: 0;">
-        .<br>.<br>.
       </h3>
     </div>
   </div>
@@ -57,9 +84,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const agentHeading = document.getElementById("agent-heading");
   const agentSubheading = document.getElementById("agent-subheading");
-  const defaultTitle = "Welcome to LPC AI Agent";
-  const defaultSubtitle = "Your internal assistant for everything Lloyd";
-  const isMobile = () => window.innerWidth <= 1080;
+  const defaultTitle = "Hello, <%= current_user['info']['first_name'] %><br>Welcome to the LPC AI Agent";
+  const defaultSubtitle = "Hover over an agent to see its details";
+  const isMobile = () => window.innerWidth <= 768;
 
   function updateTextWithFade(element, newText) {
     element.style.opacity = 0;
@@ -118,6 +145,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.querySelector(".profile-btn");
+  const dropdown = document.querySelector(".profile-dropdown");
+
+  if (btn && dropdown) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle("hidden");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      dropdown.classList.add("hidden");
+    });
+  }
+});
+
 
 </script>
 

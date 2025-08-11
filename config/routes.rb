@@ -1,5 +1,11 @@
 #config/routes.rb
 Rails.application.routes.draw do
+  if Rails.env.development?
+    get "rails/importmap.json", to: "importmap#index"
+  end
+
+  
+  get "notifications/index"
   root "home#index"
   get "home/index"
 
@@ -22,5 +28,23 @@ Rails.application.routes.draw do
   post "/transcribe", to: "speech#transcribe"
   post "/tts", to: "tts#speak"
 
+  get "notifications", to: "notifications#index", as: :notifications
+
+  get "settings", to: "settings#index"
+  get "/settings/fetch/:uuid", to: "settings#fetch", as: "fetch_agent_settings"
+  patch "/settings/:uuid", to: "settings#update", as: "agent_settings"
+
+# Settings for Knowledge Base Data Sources
+  get    '/settings/fetch_kb_data_sources/:uuid',         to: 'settings#fetch_kb_data_sources'
+  delete '/settings/delete_kb_data_source/:kb_uuid/:ds_uuid', to: 'settings#delete_kb_data_source'
+  post   '/settings/add_kb_data_source/:uuid',            to: 'settings#add_kb_data_source'
+  get    'settings/spaces_buckets', to: 'settings#spaces_buckets'
+
+  put "/settings/agents/:uuid/instruction", to: "settings#update_instruction"
+  put "/settings/agents/:agent_uuid/functions/:function_uuid", to: "settings#update_function"
+  put "/settings/agents/:uuid/model_config", to: "settings#update_model_config"
+  get '/settings/agents/:uuid/versions', to: 'settings#versions'
+  put '/settings/agents/:uuid/versions', to: 'settings#revert_version'
+  put 'settings/agents/:uuid/name_version', to: 'settings#name_version'
 
 end
