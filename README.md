@@ -1,129 +1,267 @@
 # LPC AI Agent
 
-This is a web-based AI assistant platform for Lloyd Pest Control, built with the Hotwire stack on Ruby on Rails. It supports multiple specialized AI agents that help employees with tasks like work order lookups, policy guidance, and field procedure instructions.
+This is a web-based AI assistant platform for **Lloyd Pest Control**, built with Ruby on Rails.  
+It supports multiple specialized AI agents that help employees with tasks like work order lookups, policy guidance, and field procedure instructions.
+Built on the **DigitalOcean GradientAI Platform** for hosting and managing AI agents.
 
 ---
 
 ## 🚀 Features
 
--   🧠 **Multi-agent Architecture**
-    This application connects to a suite of specialized backend agents. Users can select from the following assistants:
-    -   Lloydbot (Router Agent) 
-    -   Clypboard Assistant 
-    -   Employee Handbook Helper 
-    -   Route Tech Assistant 
-    -   Call Center Agent 
+- **🧠 Multi‑Agent Architecture**
+  Route queries through **Lloydbot (Router Agent)** to specialized assistants:
+  Clypboard Assistant, Employee Handbook Helper, Route Tech Assistant, and Call Center Agent.
 
--   🔌 **Centralized Agent Service**
-    Connects to DigitalOcean-hosted agent endpoints for all AI interactions, managed through a single `DigitaloceanAgentService` class.
+- **🔌 Centralized Agent Service**
+  All AI calls flow through a single `DigitaloceanAgentService`, handling auth, routing, retries, and error shaping.
 
--   🔐 **Secure Google OAuth Login**
-    Handles authentication via Google OAuth. Session data is stored securely in `Rails.cache`, linked to an encrypted cookie in the user's browser.
+- **⚙️ In‑App Agent Configuration**
+  Admins can configure agents from the Settings UI:
+  update instructions/prompts, adjust retrieval mode, tune limits, and manage function routes and schemas.
+  Changes are versioned with the ability to view and revert prior versions.
 
--   ✨ **Live Markdown Rendering**
-    Bot replies are animated and rendered as Markdown in real-time using `marked.js`, creating a dynamic and readable chat interface.
+- **📚 Knowledge Base Management**
+  Upload CSVs/docs to DigitalOcean Spaces and index them for retrieval‑augmented responses. Progress and token usage are surfaced in the UI.
 
--   💬 **Persistent Conversations**
-    Chat history is saved, allowing users to review and continue previous conversations. A new chat can be started at any time[cite: 2, 4].
+- **🔐 Secure Google OAuth Login**
+  Google OAuth 2.0 with sessions stored in `Rails.cache` and protected via encrypted cookies.
+  Edit permissions are role‑gated (see `config/config-perms.txt`).
+
+- **✨ Live Markdown + Typing Animation**
+  Responses are streamed and rendered via `marked` while preserving full formatting (headers, bold, lists).
+
+- **🎙️ Speech In/Out**
+  Voice input via Google Cloud Speech‑to‑Text; playback via Text‑to‑Speech.
+
+- **💬 Persistent Conversations**
+  Threaded chat history so users can resume where they left off; start new threads anytime.
+
+- **🗝️ API Key & Endpoint Management**
+  Per‑agent API credentials and endpoints are stored in environment variables and surfaced in the Settings UI for operational visibility.
+
+- **📦 File Storage**
+  User uploads and KB artifacts stored on **DigitalOcean Spaces** (S3‑compatible).
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer          | Technology                                                     |
-| :------------- | :------------------------------------------------------------- |
-| **Backend** | Ruby on Rails 8, PostgreSQL, Puma, Solid Queue    |
-| **Frontend** | Hotwire (Turbo, Stimulus), Importmap, `marked.js` |
-| **AI Backend** | [cite_start]DigitalOcean App Platform                               |
-| **Dev Tools** | Dotenv, Brakeman, RuboCop, Minitest, Capybara    |
-| **Deployment** | Kamal                                                   |
+| Layer           | Technology                                                                      |
+| :-------------- | :-------------------------------------------------------------------------------|
+| **Backend**     | Ruby 3.2.2, Ruby on Rails 8.0.2, PostgreSQL 17, Puma 6.6.0                      |
+| **Frontend**    | Hotwire (Turbo, Stimulus), Importmap, Propshaft, Tailwind CSS (custom styling)  |
+| **AI Platform** | DigitalOcean GradientAI Platform                                                |
+| **Speech**      | Google Cloud Speech-to-Text, Google Cloud Text-to-Speech                        |
+| **Background Jobs** | Solid Queue 1.2.0 (with Solid Cable & Solid Cache)                          |
+| **Auth**        | Google OAuth 2.0 via OmniAuth (omniauth-google-oauth2)                          |
+| **File Storage**| DigitalOcean Spaces (S3-compatible)                                             |
+| **HTTP & API**  | Faraday, HTTPParty                                                              |
+| **Dev Tools**   | Dotenv, Brakeman, RuboCop, Minitest, Capybara                                   |
+| **Deployment** | Manual (rbenv, Bundler, systemd, Puma)                                           |
 
 ---
 
-## 🛠️ Setup and Deployment
+## ⚙️ Environment Variables
 
-### Local Setup
+Create a `.env` file in the project root and add the following keys:
 
-1.  **Install dependencies:**
-    ```bash
-    bundle install
-    ```
+```env
+# Google OAuth Credentials
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
-2.  **Set up the database:**
-    ```bash
-    rails db:setup
-    ```
+# AI Agent Credentials
+LLOYDBOT_ENDPOINT=
+LLOYDBOT_KEY=
+LLOYDBOT_UUID=
 
-3.  **Configure Environment Variables:**
-    Create a `.env` file in the project root and add the following keys. [cite_start]These are used to connect to the Google OAuth application and the backend AI agents.
-    ```env
-    # Google OAuth Credentials
-    GOOGLE_CLIENT_ID=
-    GOOGLE_CLIENT_SECRET=
+CLYPBOARD_AGENT_KEY=
+CLYPBOARD_AGENT_ENDPOINT=
+CLYPBOARD_AGENT_UUID=
 
-    # DigitalOcean Agent Endpoints & Keys
-    LLOYDBOT_ENDPOINT=
-    LLOYDBOT_KEY=
+HANDBOOK_HELPER_KEY=
+HANDBOOK_HELPER_ENDPOINT=
+HANDBOOK_HELPER_UUID=
 
-    CLYPBOARD_AGENT_ENDPOINT=
-    CLYPBOARD_AGENT_KEY=
+ROUTE_TECH_KEY=
+ROUTE_TECH_ENDPOINT=
+ROUTE_TECH_UUID=
 
-    HANDBOOK_HELPER_ENDPOINT=
-    HANDBOOK_HELPER_KEY=
+CSR_KEY=
+CSR_ENDPOINT=
+CSR_UUID=
 
-    ROUTE_TECH_ENDPOINT=
-    ROUTE_TECH_KEY=
+CLYPBOARD_API_KEY=
+CLYPBOARD_API_URL=
 
-    CSR_ENDPOINT=
-    CSR_KEY=
-    ```
+GOOGLE_STT_KEY=
 
-4.  **Start the application:**
-    Use the standard Rails `bin/dev` command, which starts the Puma web server. Background jobs via Solid Queue are automatically processed by Puma.
-    ```bash
-    bin/dev
-    ```
+# DigitalOcean
+DIGITALOCEAN_API=
+DIGITALOCEAN_API_URL=
 
-### Deployment
+# DigitalOcean Spaces
+DO_SPACES_KEY=
+DO_SPACES_SECRET=
+DO_SPACES_BUCKET=
+DO_SPACES_REGION=
+CHEM_SPACES_BUCKET=
+```
 
-This application is configured for deployment with **Kamal**.
+---
 
--   The configuration is defined in `config/deploy.yml`.
--   Before deploying, ensure you have set up your servers and configured the `KAMAL_REGISTRY_PASSWORD` and `RAILS_MASTER_KEY` secrets via the Kamal CLI.
--   Deploy the application by running:
-    ```bash
-    bin/kamal deploy
-    ```
+## 🚢 Deployment (Manual: rbenv + Bundler + systemd + Puma)
+
+This app is deployed directly on the droplet using rbenv, Bundler (deployment mode), precompiled assets, and a systemd unit that runs Puma.
+
+### One‑time setup (on the droplet)
+```bash
+# Install Ruby via rbenv and bundler
+gem install bundler -N
+bundle config set --local path vendor/bundle
+bundle config set --local deployment true
+bundle config set --local without 'development test'
+bundle install
+
+# Database + assets (first time)
+RAILS_ENV=production bundle exec rails db:migrate
+RAILS_ENV=production bundle exec rails assets:precompile
+```
+
+### Systemd service (Puma)
+Create `/etc/systemd/system/lpc-ai-agent.service`:
+
+```ini
+[Unit]
+Description=LPC AI Agent (Rails/Puma)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/agent/lpc-ai-agent
+Environment=RAILS_ENV=production
+# rbenv shims used here, per your history:
+ExecStart=/root/.rbenv/shims/bundle exec puma -C config/puma.rb
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable lpc-ai-agent
+sudo systemctl start lpc-ai-agent
+```
+Updating the app
+```bash
+cd /root/agent/lpc-ai-agent
+git pull origin main
+bundle install
+RAILS_ENV=production bundle exec rails db:migrate
+RAILS_ENV=production bundle exec rails assets:precompile
+sudo systemctl restart lpc-ai-agent
+```
+Health, logs, and troubleshooting
+
+# Puma/rails logs
+journalctl -u lpc-ai-agent -f
+# Process check (Puma 6.6.0 on :3001 per history)
+ps -ef | grep puma | grep -v grep
+# Rails /up healthcheck (if exposed via proxy)
+curl -I https://your.domain.com/up
+
+Reverse proxy / SSL
+If you’re fronting Puma with Nginx+Certbot or another proxy, point it to the Puma port from config/puma.rb (your process shows 0.0.0.0:3001) and ensure X-Forwarded-* headers are preserved.
 
 ---
 
 ## 📁 File Structure Highlights
 
-app/
-├── controllers/
-│   ├── agents_controller.rb      # Core controller for handling prompts and conversations 
-│   ├── sessions_controller.rb    # Manages Google OAuth callbacks and sessions 
-│   └── application_controller.rb # Handles user authentication logic
-│
-├── javascript/
-│   ├── controllers/              # Stimulus JS controllers
-│   └── llm_chat.js               # Manages chat form, fetch requests, and response animation
-│
-├── models/
-│   ├── conversation.rb           # ActiveRecord model for a single chat thread
-│   └── message.rb                # ActiveRecord model for a user or bot message
-│
-├── services/
-│   └── digitalocean_agent_service.rb # HTTP client for communicating with backend AI agents 
-│
-└── views/
-├── agents/                   # Views for the main chat interface
-└── layouts/                  # Application layout files
-
-config/
-├── routes.rb                     # Defines all application routes 
-├── deploy.yml                    # Kamal deployment configuration
-└── importmap.rb                  # Defines all JavaScript dependencies
+.
+├── .DS_Store
+├── .gitignore
+├── Gemfile
+├── Gemfile.lock
+├── README.md
+├── app
+│   ├── assets
+│   │   ├── fonts
+│   │   │   └── testpropshaft.txt
+│   │   ├── images
+│   │   │   ├── bell.svg
+│   │   │   ├── eye.svg
+│   │   │   ├── lock.svg
+│   │   │   ├── mic.svg
+│   │   │   ├── profile.svg
+│   │   │   ├── recording.svg
+│   │   │   └── settings.svg
+│   │   ├── sounds
+│   │   │   └── beep.wav
+│   │   └── stylesheets
+│   │       └── llm_chat.css
+│   ├── controllers
+│   │   ├── agents_controller.rb
+│   │   ├── application_controller.rb
+│   │   ├── authentications_controller.rb
+│   │   ├── notifications_controller.rb
+│   │   ├── sessions_controller.rb
+│   │   ├── settings_controller.rb
+│   │   ├── speech_controller.rb
+│   │   └── tts_controller.rb
+│   ├── helpers
+│   │   ├── notifications_helper.rb
+│   │   └── speech_helper.rb
+│   ├── javascript
+│   │   ├── application.js
+│   │   ├── llm_chat.js
+│   │   ├── settings
+│   │   │   ├── functions.js
+│   │   │   ├── guardrails.js
+│   │   │   ├── helpers.js
+│   │   │   ├── index.js
+│   │   │   ├── instructions.js
+│   │   │   ├── kb.js
+│   │   │   ├── model_config.js
+│   │   │   └── version.js
+│   │   └── wav_encoder.js
+│   ├── models
+│   │   └── conversation.rb
+│   ├── services
+│   │   └── spaces_uploader.rb
+│   └── views
+│       ├── agents
+│       │   └── ask.html.erb
+│       ├── home
+│       │   ├── index.html.erb
+│       │   └── login.html.erb
+│       ├── layouts
+│       │   └── application.html.erb
+│       ├── notifications
+│       │   └── index.html.erb
+│       └── settings
+│           └── index.html.erb
+├── config
+│   ├── config-perms.txt
+│   ├── environments
+│   │   └── development.rb
+│   ├── importmap.rb
+│   ├── initializers
+│   │   └── digitalocean_spaces.rb
+│   ├── routes.rb
+│   └── schedule.rb
+├── db
+│   ├── migrate
+│   │   ├── 20250724202950_add_user_email_to_conversations.rb
+│   │   └── 20250731184453_add_user_email_index_to_conversations.rb
+│   └── schema.rb
+└── public
+    ├── audio
+    │   └── audio-processor.js
+    └── fonts
 
 ---
 

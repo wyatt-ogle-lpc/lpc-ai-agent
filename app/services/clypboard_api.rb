@@ -2,7 +2,7 @@
 
 require 'httparty'
 
-class ClypboardAPI
+class ClypboardApi
   include HTTParty
   base_uri ENV.fetch('CLYPBOARD_API_URL')
 
