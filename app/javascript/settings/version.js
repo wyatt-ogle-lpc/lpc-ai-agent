@@ -13,7 +13,7 @@ export async function fetchAgentVersions(uuid) {
   }
 
   export function renderVersions(versions, currentHash, isEditable = false) {
-    const cutoffDate = new Date("2025-07-30T14:45:00-07:00");
+    const cutoffDate = new Date("2025-07-30T17:00:00-07:00"); // This just cuts off versions that were used for testing
   
     const currentVersion = versions.find(v => v.version_hash === currentHash);
   
