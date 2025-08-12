@@ -49,7 +49,7 @@ Built on the **DigitalOcean GradientAI Platform** for hosting and managing AI ag
 | Layer           | Technology                                                                      |
 | :-------------- | :-------------------------------------------------------------------------------|
 | **Backend**     | Ruby 3.2.2, Ruby on Rails 8.0.2, PostgreSQL 17, Puma 6.6.0                      |
-| **Frontend**    | Hotwire (Turbo, Stimulus), Importmap, Propshaft, Tailwind CSS (custom styling)  |
+| **Frontend**    | Hotwire (Turbo, Stimulus), Importmap, Propshaft                                 |
 | **AI Platform** | DigitalOcean GradientAI Platform                                                |
 | **Speech**      | Google Cloud Speech-to-Text, Google Cloud Text-to-Speech                        |
 | **Background Jobs** | Solid Queue 1.2.0 (with Solid Cable & Solid Cache)                          |
