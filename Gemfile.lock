@@ -331,11 +331,10 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.4.0)
-    propshaft (1.0.0)
+    propshaft (1.2.1)
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
-      railties (>= 7.0.0)
     psych (5.2.6)
       date
       stringio
@@ -344,7 +343,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.16)
+    rack (3.2.0)
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -518,7 +517,7 @@ DEPENDENCIES
   omniauth
   omniauth-google-oauth2
   pg (~> 1.1)
-  propshaft (= 1.0.0)
+  propshaft (= 1.2.1)
   puma (>= 5.0)
   rails (~> 8.0.2)
   redcarpet
