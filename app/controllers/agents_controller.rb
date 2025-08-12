@@ -7,7 +7,8 @@ class AgentsController < ApplicationController
   MAX_HISTORY_MESSAGES = 5
   MAX_TOKENS_PER_REQUEST = 3000 
 
-  
+  INPUT_COST_PER_M  = 3.0 # From Claude Sonnet 3.7
+  OUTPUT_COST_PER_M = 15.0
 
   def ask
     unless current_user
@@ -70,6 +71,7 @@ class AgentsController < ApplicationController
       puts "❌ Reply is nil. Response structure: #{parsed_response.inspect}"
       reply = "⚠️ No content returned from agent."
     end
+    identity = detect_target_agent(1) # or agent_name(session[:agent_id])
     puts "🤖 Agent reply: #{reply.truncate(80)}"
   
     retrieved_chunks = parsed_response.dig("retrieval", "retrieved_data")
@@ -78,11 +80,18 @@ class AgentsController < ApplicationController
     else
       puts "⚠️ No retrieval chunks returned."
     end
-  
+
     if parsed_response["usage"]
       prompt_tokens = parsed_response['usage']['prompt_tokens']
       completion_tokens = parsed_response['usage']['completion_tokens']
       total_tokens = parsed_response['usage']['total_tokens']
+
+      input_rate  = INPUT_COST_PER_M
+      output_rate = OUTPUT_COST_PER_M
+    
+      input_cost  = (prompt_tokens     / 1_000_000.0) * input_rate
+      output_cost = (completion_tokens / 1_000_000.0) * output_rate
+      total_cost  = input_cost + output_cost
   
       puts ""
       puts "=== TOKEN ANALYSIS ==="
@@ -91,10 +100,17 @@ class AgentsController < ApplicationController
       puts "Completion tokens: #{completion_tokens}"
       puts "Total tokens: #{total_tokens}"
       puts "Context overhead: #{((prompt_tokens - your_estimated_tokens).to_f / prompt_tokens * 100).round(1)}%"
+      puts "=== COST ESTIMATE ==="
+      puts "Input: #{format('$%.2f', input_cost)}"
+      puts "Output: #{format('$%.2f', output_cost)}"
+      puts "Estimated per-prompt cost: #{format('$%.2f', total_cost)}"
       puts "=== Target Agent ==="
       puts "#{detect_target_agent(1)}"
       puts "===================="
     end
+
+    label = "**#{identity}**"
+    reply = "#{label}\n\n#{reply}"
   
     bot_message = @conversation.messages.create!(role: "bot", content: reply)
     puts "✅ Bot message saved with ID #{bot_message.id}"
