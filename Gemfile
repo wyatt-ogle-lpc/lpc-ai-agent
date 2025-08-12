@@ -26,7 +26,7 @@ gem 'activerecord-session_store'
 gem 'redcarpet'
 gem "google-cloud-speech"
 gem "google-cloud-text_to_speech", "~> 2.0"
-gem 'aws-sdk-s3', '~> 1.148'
+gem 'aws-sdk-s3', '~> 1.196'
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
