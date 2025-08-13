@@ -23,10 +23,23 @@ class ApplicationController < ActionController::Base
   def current_user
     token = cookies.signed[:remember_token]
     return nil unless token
-  
+
     cached = Rails.cache.read("user_auth_#{token}")
     return nil unless cached && cached.dig('info', 'email').present?
-  
+
+    # --- Daily logout at 3:00 AM PST ---
+    issued_at = begin
+      Time.iso8601(cached['issued_at']).utc
+    rescue
+      nil
+    end
+    cutoff_utc = daily_logout_cutoff.utc
+
+    if issued_at.nil? || issued_at < cutoff_utc
+      Rails.cache.delete("user_auth_#{token}")
+      cookies.delete(:remember_token)
+      return nil
+    end
     cached
   end
 
@@ -35,6 +48,14 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+
+  def daily_logout_cutoff
+    tz   = ActiveSupport::TimeZone["America/Los_Angeles"]
+    now  = tz.now
+    today_3am = tz.local(now.year, now.month, now.day, 3, 0, 0)
+    today_3am <= now ? today_3am : (today_3am - 1.day)
+  end
 
   def check_notifications
     bucket = "chemicals"

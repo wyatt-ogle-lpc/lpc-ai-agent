@@ -180,8 +180,7 @@ class AgentsController < ApplicationController
       # No conversations left — land on a fresh one
       redirect_to ask_path
     end
-  end
-    
+  end  
 
   def markdown(text)
     renderer = Redcarpet::Render::HTML.new(

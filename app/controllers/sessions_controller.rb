@@ -39,6 +39,7 @@ class SessionsController < ApplicationController
       },
       'uid' => uid,
       'role' => user_info[:role]
+      'issued_at' => Time.now.utc.iso8601 # << store when this login was created
     }
   
     token = SecureRandom.hex(32)
