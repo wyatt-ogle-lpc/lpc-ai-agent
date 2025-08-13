@@ -38,7 +38,7 @@ class SessionsController < ApplicationController
         'last_name'  => user_info[:last_name]  || google_last_name
       },
       'uid' => uid,
-      'role' => user_info[:role]
+      'role' => user_info[:role],
       'issued_at' => Time.now.utc.iso8601 # << store when this login was created
     }
   
