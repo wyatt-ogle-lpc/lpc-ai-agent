@@ -414,15 +414,10 @@ function insertUsageDropdownForLastBot(usage) {
     <button type="button" class="usage-toggle" aria-haspopup="true" aria-expanded="false" title="Details">Details ▾</button>
     <div class="usage-menu hidden" role="menu" aria-label="Token and cost details">
       <div class="usage-menu-inner">
-        <div class="usage-section">
-          <div><strong>Prompt tokens</strong> ${usage.prompt_tokens}</div>
-          <div><strong>Completion tokens</strong> ${usage.completion_tokens}</div>
-          <div><strong>Total tokens</strong> ${usage.total_tokens}</div>
-        </div>
-        <div class="usage-section">
-          <div><strong>Input @$${(usage.input_rate).toFixed(2)}/M</strong> $${Number(usage.input_cost).toFixed(3)}</div>
-          <div><strong>Output @$${(usage.output_rate).toFixed(2)}/M</strong> $${Number(usage.output_cost).toFixed(3)}</div>
-          <div><strong>Est. per‑prompt</strong> $${Number(usage.total_cost).toFixed(2)}</div>
+        <div class="usage-section" style="white-space: nowrap;">
+          <div>Prompt tokens: ${usage.prompt_tokens}</div>
+          <div>Completion tokens: ${usage.completion_tokens}</div>
+          <div>Total tokens: ${usage.total_tokens}</div>
         </div>
       </div>
     </div>
