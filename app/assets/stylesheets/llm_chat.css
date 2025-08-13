@@ -162,6 +162,53 @@ html, body {
   border-radius: 18px 18px 18px 4px;
 }
 
+/* make bot bubble the positioning context */
+.llm-message.llm-bot { position: relative; }
+
+/* button sits in the top-right corner of the bubble */
+.usage-in-bubble {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+}
+
+/* small button */
+.llm-message.llm-bot .usage-toggle {
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.85;
+  border: none;
+  background: none;
+}
+
+.llm-message.llm-bot .usage-toggle:hover {
+  text-decoration: underline;
+}
+
+/* dropdown panel (reuses your styles) */
+.llm-message.llm-bot .usage-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  background: #813910;
+  border-radius: 5px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.1);
+  opacity: 0.9;
+}
+
+.llm-message.llm-bot .usage-menu-inner {
+  padding: 5px 6px;
+  font-size: 12px;       /* small text */
+  line-height: 1.2;
+  color: #fff;
+}
+
+.hidden { display: none; }
+
 .llm-form-row {
   position: sticky;
   bottom: 0;

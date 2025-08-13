@@ -96,26 +96,36 @@
 
       <!-- Chat messages -->
       <div id="llm-chat-log">
-        <% if @chat_history.present? %>
-          <% @chat_history.each_with_index do |entry, idx| %>
-            <% next if entry[:role] == "system" %> <!-- 👈 Skip system messages -->
-            <% if entry[:role] == "user" %>
-              <div class="llm-message-row">
-                <div class="llm-message llm-user"><%= h(entry[:content]) %></div>
-              </div>
-            <% else %>
-              <% message_id = @conversation.messages[idx].id rescue nil %> 
-              <% animate = message_id && message_id == @last_bot_message_id %>
-              <div class="llm-message-row">
-                <div class="llm-message llm-bot" <%= 'data-animate="true"' if animate %>>
-                  <% rendered = markdown(entry[:content]) %>
-                  <%= rendered.present? ? raw(rendered) : content_tag(:p, h(entry[:content]), class: "llm-message-plain") %>
+      <% @conversation.messages.order(:created_at).each do |msg| %>
+        <% next if msg.role == "system" %>
+        <div class="llm-message-row">
+          <% if msg.role == "user" %>
+            <div class="llm-message llm-user"><%= h(msg.content) %></div>
+          <% else %>
+            <% animate = (msg.id == @last_bot_message_id) %>
+            <div class="llm-message llm-bot" <%= 'data-animate="true"' if animate %>>
+              <% rendered = markdown(msg.content) %>
+              <%= rendered.present? ? raw(rendered) : content_tag(:p, h(msg.content), class: "llm-message-plain") %>
+    
+              <% if msg.usage.present? %>
+                <div class="usage-dropdown-wrapper usage-in-bubble">
+                  <button type="button" class="usage-toggle" aria-haspopup="true" aria-expanded="false" title="Details">Details ▾</button>
+                  <div class="usage-menu hidden" role="menu" aria-label="Token and cost details">
+                    <div class="usage-menu-inner">
+                      <div class="usage-section" style="white-space: nowrap;">
+                        <div>Prompt tokens: <%= msg.usage["prompt_tokens"] %></div>
+                        <div>Completion tokens: <%= msg.usage["completion_tokens"] %></div>
+                        <div>Total tokens: <%= msg.usage["total_tokens"] %></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
+            </div>
           <% end %>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
+    </div>
 
       <!-- Form -->
       <div class="llm-form-row">

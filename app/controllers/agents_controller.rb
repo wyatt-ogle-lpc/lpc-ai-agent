@@ -81,6 +81,11 @@ class AgentsController < ApplicationController
       puts "⚠️ No retrieval chunks returned."
     end
 
+    label = "**#{identity}**"
+    reply = "#{label}\n\n#{reply}"
+  
+    bot_message = @conversation.messages.create!(role: "bot", content: reply)
+
     if parsed_response["usage"]
       prompt_tokens = parsed_response['usage']['prompt_tokens']
       completion_tokens = parsed_response['usage']['completion_tokens']
@@ -101,18 +106,26 @@ class AgentsController < ApplicationController
       puts "Total tokens: #{total_tokens}"
       puts "Context overhead: #{((prompt_tokens - your_estimated_tokens).to_f / prompt_tokens * 100).round(1)}%"
       puts "=== COST ESTIMATE ==="
-      puts "Input: #{format('$%.2f', input_cost)}"
-      puts "Output: #{format('$%.2f', output_cost)}"
+      puts "Input: #{format('$%.3f', input_cost)}"
+      puts "Output: #{format('$%.3f', output_cost)}"
       puts "Estimated per-prompt cost: #{format('$%.2f', total_cost)}"
       puts "=== Target Agent ==="
       puts "#{detect_target_agent(1)}"
       puts "===================="
+
+      usage_payload = {
+        prompt_tokens: prompt_tokens,
+        completion_tokens: completion_tokens,
+        total_tokens: total_tokens,
+        input_rate: input_rate,
+        output_rate: output_rate,
+        input_cost: input_cost.round(3),
+        output_cost: output_cost.round(3),
+        total_cost: total_cost.round(2)
+      }
+      bot_message.update!(usage: usage_payload)
     end
 
-    label = "**#{identity}**"
-    reply = "#{label}\n\n#{reply}"
-  
-    bot_message = @conversation.messages.create!(role: "bot", content: reply)
     puts "✅ Bot message saved with ID #{bot_message.id}"
   
     session[:last_bot_message_id] = bot_message.id
@@ -120,7 +133,7 @@ class AgentsController < ApplicationController
     puts "⏱️ Total request duration: #{duration.round(2)} seconds"
   
     respond_to do |format|
-      format.json { render json: { reply: reply } }
+      format.json { render json: { reply: reply, usage: bot_message.usage, message_id: bot_message.id } }
       format.html { redirect_to ask_path(id: @conversation.id) }
     end
   
@@ -171,8 +184,11 @@ class AgentsController < ApplicationController
   end
 
   def markdown(text)
-    renderer = Redcarpet::Render::HTML.new(filter_html: true, hard_wrap: true)
-    markdown = Redcarpet::Markdown.new(renderer, extensions = {})
+    renderer = Redcarpet::Render::HTML.new(
+      filter_html: true,  # block raw HTML again
+      hard_wrap: true
+    )
+    markdown = Redcarpet::Markdown.new(renderer, {})
     markdown.render(text).html_safe
   end
 

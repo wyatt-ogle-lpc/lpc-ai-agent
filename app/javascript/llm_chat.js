@@ -88,6 +88,7 @@ document.addEventListener("turbo:load", () => {
       const data = await response.json();
       const content = data.reply?.trim() || "";
       animateBotResponse(content);
+      insertUsageDropdownForLastBot(data.usage); // ← add this line
 
       if (data.updated_title) {
         updateConversationTitle(data.updated_title, conversationId);
@@ -400,3 +401,74 @@ function updateConversationTitle(newTitle, conversationId) {
   }
 }
 
+// app/javascript/llm_chat.js
+
+function insertUsageDropdownForLastBot(usage) {
+  if (!usage) return;
+  const lastBot = document.querySelector(".llm-message-row:last-child .llm-message.llm-bot");
+  if (!lastBot) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "usage-dropdown-wrapper usage-in-bubble";
+  wrapper.innerHTML = `
+    <button type="button" class="usage-toggle" aria-haspopup="true" aria-expanded="false" title="Details">Details ▾</button>
+    <div class="usage-menu hidden" role="menu" aria-label="Token and cost details">
+      <div class="usage-menu-inner">
+        <div class="usage-section">
+          <div><strong>Prompt tokens</strong> ${usage.prompt_tokens}</div>
+          <div><strong>Completion tokens</strong> ${usage.completion_tokens}</div>
+          <div><strong>Total tokens</strong> ${usage.total_tokens}</div>
+        </div>
+        <div class="usage-section">
+          <div><strong>Input @$${(usage.input_rate).toFixed(2)}/M</strong> $${Number(usage.input_cost).toFixed(3)}</div>
+          <div><strong>Output @$${(usage.output_rate).toFixed(2)}/M</strong> $${Number(usage.output_cost).toFixed(3)}</div>
+          <div><strong>Est. per‑prompt</strong> $${Number(usage.total_cost).toFixed(2)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  lastBot.appendChild(wrapper);
+}
+
+// --- Token-usage dropdown: open/close behavior ---
+document.addEventListener("turbo:load", () => {
+  function closeAllUsageMenus(except) {
+    document.querySelectorAll(".usage-menu").forEach(menu => {
+      if (menu !== except) {
+        menu.classList.add("hidden");
+        const btn = menu.closest(".usage-dropdown-wrapper")?.querySelector(".usage-toggle");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  // Click anywhere
+  document.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest(".usage-toggle");
+    const openMenu = e.target.closest(".usage-menu");
+
+    // Clicked the "Details" button
+    if (toggleBtn) {
+      const wrapper = toggleBtn.closest(".usage-dropdown-wrapper");
+      const menu = wrapper?.querySelector(".usage-menu");
+      if (!menu) return;
+
+      const willOpen = menu.classList.contains("hidden");
+      closeAllUsageMenus(willOpen ? menu : null);
+      menu.classList.toggle("hidden");
+      toggleBtn.setAttribute("aria-expanded", String(willOpen));
+      return;
+    }
+
+    // Clicked inside an open menu — do nothing
+    if (openMenu) return;
+
+    // Clicked elsewhere — close everything
+    closeAllUsageMenus(null);
+  });
+
+  // Close all menus on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllUsageMenus(null);
+  });
+});
