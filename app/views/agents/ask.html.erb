@@ -11,15 +11,17 @@
     </div>
       <ul class="conversation-list">
         <% @conversations.each do |conv| %>
-          <% safe_title = conv.title.gsub(/\*\*(.+?)\*\*/, '<span class="markdown-bold">\1</span>').html_safe %>
+          <% safe_title   = conv.title.gsub(/\*\*(.+?)\*\*/, '<span class="markdown-bold">\1</span>').html_safe %>
           <% tooltip_title = conv.title.gsub(/\*\*(.+?)\*\* - /, '') %>
-          <li class="conversation-item" data-conversation-id="<%= conv.id %>">
-            <%= link_to ask_path(id: conv.id, agent_id: session[:agent_id]), class: "conversation-title" do %>
+          <li class="conversation-item <%= 'active' if conv.id == @conversation.id %>"
+              data-conversation-id="<%= conv.id %>">
+            <%= link_to ask_path(id: conv.id, agent_id: session[:agent_id]),
+                        class: "conversation-title",
+                        aria: { current: (conv.id == @conversation.id ? 'page' : nil) } do %>
               <%= safe_title %>
             <% end %>
             <%= button_to "✕", delete_conversation_path(conv), method: :delete,
-                form_class: "inline-delete-form",
-                class: "delete-btn" %>
+                form_class: "inline-delete-form", class: "delete-btn" %>
             <div class="tooltip"><%= tooltip_title %></div>
           </li>
         <% end %>

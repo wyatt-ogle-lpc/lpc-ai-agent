@@ -442,6 +442,10 @@ button.llm-send svg {
   position: relative; /* 👈 Important for absolute positioning inside */
 }
 
+.conversation-item.active {
+  background: #fee4cd;              /* soft highlight */
+}
+
 .conversation-item:hover {
   background: #ddd;
 }

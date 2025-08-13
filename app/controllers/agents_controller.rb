@@ -165,23 +165,23 @@ class AgentsController < ApplicationController
   end
 
   def destroy
-    conversation = Conversation.find_by!(id: params[:id], user_email: current_user&.dig('info', 'email'))
+    user_email = current_user&.dig('info', 'email')
+    conversation = Conversation.find_by!(id: params[:id], user_email: user_email)
     conversation.destroy!
   
-    # Find next available conversation with messages
     next_conversation = Conversation
-      .joins(:messages)
-      .distinct
+      .where(user_email: user_email)
       .order(updated_at: :desc)
       .first
   
     if next_conversation
       redirect_to ask_path(id: next_conversation.id)
     else
-      # No existing conversation with messages — create a fresh one
+      # No conversations left — land on a fresh one
       redirect_to ask_path
     end
   end
+    
 
   def markdown(text)
     renderer = Redcarpet::Render::HTML.new(
@@ -198,14 +198,26 @@ class AgentsController < ApplicationController
     unless current_user
       redirect_to login_path, alert: "You must be logged in to continue" and return
     end
-    if params[:id].present?
-      @conversation = Conversation.find_by!(id: params[:id], user_email: current_user&.dig('info', 'email'))
-    else
-      session[:agent_id] = params[:agent_id].to_i if params[:agent_id].present?
-      @conversation = Conversation.create!(title: "New Chat", user_email: current_user&.dig('info', 'email'))
-      redirect_to ask_path(id: @conversation.id, agent_id: session[:agent_id]) and return
+  
+    user_email = current_user.dig('info', 'email')
+    session[:agent_id] = params[:agent_id].to_i if params[:agent_id].present?
+  
+    # Try the requested conversation (non-bang)
+    @conversation = Conversation.find_by(id: params[:id], user_email: user_email) if params[:id].present?
+  
+    # If it's gone or id not present, pick the most recent user's conversation
+    unless @conversation
+      fallback = Conversation.where(user_email: user_email).order(updated_at: :desc).first
+      if fallback
+        redirect_to ask_path(id: fallback.id, agent_id: session[:agent_id]) and return
+      else
+        # No existing conv — create a fresh one, then redirect to its URL
+        @conversation = Conversation.create!(title: "New Chat", user_email: user_email)
+        redirect_to ask_path(id: @conversation.id, agent_id: session[:agent_id]) and return
+      end
     end
-  end  
+  end
+  
   
 
   def get_full_chat_history
