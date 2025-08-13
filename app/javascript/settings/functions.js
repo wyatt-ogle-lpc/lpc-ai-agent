@@ -193,6 +193,29 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       }
   
       const updated = await response.json();
+
+      document.dispatchEvent(new CustomEvent("agent:functionUpdated", {
+        detail: {
+          agentUUID,
+          functionUUID,
+          updatedFunction: {
+            ...fn,
+            description: newDescription,
+            input_schema: newInputSchema,
+            output_schema: newOutputSchema
+          }
+        }
+      }));
+      
+      // (optional) keep the modal in view with fresh data:
+      modal.remove();
+      document.documentElement.style.overflow = '';
+      showFunctionModal(
+        { ...fn, description: newDescription, input_schema: newInputSchema, output_schema: newOutputSchema },
+        agentUUID,
+        functionUUID,
+        true
+      );
   
       modal.remove();
       document.documentElement.style.overflow = '';

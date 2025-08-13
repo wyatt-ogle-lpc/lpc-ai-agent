@@ -53,6 +53,7 @@ document.addEventListener("turbo:load", () => {
         
         const role = document.querySelector('meta[name="current-role"]')?.content.toLowerCase();
         const isEditable = editableRoles.includes(role);
+        window.__agentSettings = { isEditable, uuid };
 
         const tooltipHTML = `
           Role: ${role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Unknown'}<br>
@@ -99,7 +100,7 @@ document.addEventListener("turbo:load", () => {
         </div>
 
         <h3>Function Routes</h3>
-        <div class="section">
+        <div class="section" id="functions-section">
           ${renderFunctions(data.functions)}
         </div>
 
@@ -203,4 +204,19 @@ document.querySelector(".back-link")?.addEventListener("click", (e) => {
   window.location.href = "/";
 });
 
+async function reloadFunctionsSection(agentUUID) {
+  const section = document.getElementById("functions-section");
+  if (!section) return;
 
+  const res = await fetch(`/settings/fetch/${agentUUID}`);
+  if (!res.ok) return;
+  const data = await res.json();
+
+  section.innerHTML = renderFunctions(data.functions);
+  bindFunctionEvents(agentUUID, window.__agentSettings?.isEditable === true);
+}
+document.addEventListener("agent:functionUpdated", (e) => {
+  const { agentUUID } = e.detail || {};
+  if (!agentUUID) return;
+  reloadFunctionsSection(agentUUID);
+});
