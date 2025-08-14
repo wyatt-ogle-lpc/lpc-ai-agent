@@ -170,7 +170,6 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // <-- missing in your code
   
     try {
-      console.error("Updating function via PUT", { agentUUID, functionUUID });
       const response = await fetch(`/settings/agents/${agentUUID}/functions/${functionUUID}`, {
         method: "PUT",
         headers: {
@@ -189,12 +188,12 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
   
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({ message: "Failed to parse error response." }));
-        console.error("Update failed:", errorBody);
+        console.log("Update failed:", errorBody);
         throw new Error(`Failed to update: ${response.status}`);
       }
   
       const updated = await response.json();
-      console.error("Function update OK:", updated);
+      console.log("Function update OK:", updated);
 
       document.dispatchEvent(new CustomEvent("agent:functionUpdated", {
         detail: {
@@ -222,7 +221,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       
     } catch (err) {
       alert("Error saving function description. Check the console for details.");
-      console.error(err);
+      console.log(err);
     }
   });
   
