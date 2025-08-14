@@ -210,13 +210,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       // (optional) keep the modal in view with fresh data:
       modal.remove();
       document.documentElement.style.overflow = '';
-      const dropdown = document.getElementById("agent-select");
-      if (dropdown) {
-        dropdown.value = agentUUID;
-        dropdown.dispatchEvent(new Event("change"));
-      } else {
-        window.location.reload();
-      }
+      window.location.reload();
     } catch (err) {
       alert("Error saving function description. Check the console for details.");
       console.error(err);
