@@ -1,27 +1,23 @@
 // app/javascript/settings/model_config.js
 export function renderModelConfig(data, isEditable = false) {
   const retrievalOptions = {
-    RETRIEVAL_METHOD_REWRITE: {
-      name: "Rewrite",
-      description: "Refines the query for better retrieval."
-    },
-    RETRIEVAL_METHOD_STEP_BACK: {
-      name: "Step Back",
-      description: "Broadens the query for more context."
-    },
-    RETRIEVAL_METHOD_SUB_QUERIES: {
-      name: "Sub Queries",
-      description: "Splits into multiple focused queries."
-    },
-    RETRIEVAL_METHOD_NONE: {
-      name: "None",
-      description: "Uses the original query as-is."
-    },
-    RETRIEVAL_METHOD_UNKNOWN: {
-      name: "Unknown",
-      description: "Retrieval method is not specified."
-    }
+    RETRIEVAL_METHOD_REWRITE: { name: "Rewrite", description: "Refines the query for better retrieval." },
+    RETRIEVAL_METHOD_STEP_BACK: { name: "Step Back", description: "Broadens the query for more context." },
+    RETRIEVAL_METHOD_SUB_QUERIES: { name: "Sub Queries", description: "Splits into multiple focused queries." },
+    RETRIEVAL_METHOD_NONE: { name: "None", description: "Uses the original query as-is." },
+    RETRIEVAL_METHOD_UNKNOWN: { name: "Unknown", description: "Retrieval method is not specified." }
   };
+
+  // prefer nested model_config if present
+  const cfg = (data && typeof data === "object" && data.model_config)
+    ? data.model_config
+    : (data || {});
+
+  const getVal = (obj, key, fallback) =>
+    (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== null && obj[key] !== undefined)
+      ? obj[key]
+      : fallback;
+
 
   return `
     <div class="model-config-group ${!isEditable ? "read-only" : ""}">
@@ -33,11 +29,11 @@ export function renderModelConfig(data, isEditable = false) {
         </span>
       </label>
       <div class="slider-row">
-        <span class="min">1</span>
-        <input type="range" id="max_tokens" name="agent[max_tokens]" min="1" max="1024" step="1"
-          value="${data.max_tokens ?? 512}" ${!isEditable ? "disabled" : ""}>
+        <span class="min">256</span>
+        <input type="range" id="max_tokens" name="agent[max_tokens]" min="256" max="1024" step="1"
+          value="${getVal(cfg, 'max_tokens', 512)}" ${!isEditable ? "disabled" : ""}>
         <span class="max">1024</span>
-        <input type="number" class="manual-input" value="${data.max_tokens ?? 512}" min="1" max="1024" ${!isEditable ? "disabled" : ""}>
+        <input type="number" class="manual-input" value="${getVal(cfg, 'max_tokens', 512)}" min="256" max="1024" ${!isEditable ? "disabled" : ""}>
       </div>
 
       <!-- Temperature -->
@@ -50,9 +46,9 @@ export function renderModelConfig(data, isEditable = false) {
       <div class="slider-row">
         <span class="min">0.0</span>
         <input type="range" id="temperature" name="agent[temperature]" min="0" max="1" step="0.01"
-          value="${data.temperature ?? 0.7}" ${!isEditable ? "disabled" : ""}>
+          value="${getVal(cfg, 'temperature', 0.7)}" ${!isEditable ? "disabled" : ""}>
         <span class="max">1.0</span>
-        <input type="number" class="manual-input" value="${data.temperature ?? 0.7}" min="0" max="1" step="0.01" ${!isEditable ? "disabled" : ""}>
+        <input type="number" class="manual-input" value="${getVal(cfg, 'temperature', 0.7)}" min="0.0" max="1" step="0.01" ${!isEditable ? "disabled" : ""}>
       </div>
 
       <!-- Top-P -->
@@ -65,9 +61,9 @@ export function renderModelConfig(data, isEditable = false) {
       <div class="slider-row">
         <span class="min">0.1</span>
         <input type="range" id="top_p" name="agent[top_p]" min="0.1" max="1" step="0.01"
-          value="${data.top_p ?? 0.9}" ${!isEditable ? "disabled" : ""}>
+          value="${getVal(cfg, 'top_p', 0.9)}" ${!isEditable ? "disabled" : ""}>
         <span class="max">1.0</span>
-        <input type="number" class="manual-input" value="${data.top_p ?? 0.9}" min="0.1" max="1" step="0.01" ${!isEditable ? "disabled" : ""}>
+        <input type="number" class="manual-input" value="${getVal(cfg, 'top_p', 0.9)}" min="0.1" max="1" step="0.01" ${!isEditable ? "disabled" : ""}>
       </div>
 
       <!-- K -->
@@ -80,18 +76,18 @@ export function renderModelConfig(data, isEditable = false) {
       <div class="slider-row">
         <span class="min">0</span>
         <input type="range" id="k" name="agent[k]" min="0" max="10" step="1"
-          value="${data.k ?? 1}" ${!isEditable ? "disabled" : ""}>
+          value="${getVal(cfg, 'k', 1)}" ${!isEditable ? "disabled" : ""}>
         <span class="max">10</span>
-        <input type="number" class="manual-input" value="${data.k ?? 1}" min="0" max="10" ${!isEditable ? "disabled" : ""}>
+        <input type="number" class="manual-input" value="${getVal(cfg, 'k', 1)}" min="0" max="10" ${!isEditable ? "disabled" : ""}>
       </div>
 
       <!-- Retrieval Method Dropdown -->
       <label for="retrieval_method">Retrieval Method</label>
       <div class="custom-dropdown ${!isEditable ? "disabled" : ""}" id="retrieval-method-dropdown" role="listbox" tabindex="0">
         <div class="dropdown-selected">
-          <span class="dropdown-name">${retrievalOptions[data.retrieval_method].name}</span>
+          <span class="dropdown-name">${getVal(retrievalOptions, getVal(cfg,'retrieval_method','RETRIEVAL_METHOD_UNKNOWN'), retrievalOptions.RETRIEVAL_METHOD_UNKNOWN).name}</span>
           <span class="dropdown-description">
-            ${retrievalOptions[data.retrieval_method].description} (${data.retrieval_method})
+            ${getVal(retrievalOptions, getVal(cfg,'retrieval_method','RETRIEVAL_METHOD_UNKNOWN'), retrievalOptions.RETRIEVAL_METHOD_UNKNOWN).description} (${getVal(cfg,'retrieval_method','RETRIEVAL_METHOD_UNKNOWN')})
           </span>
         </div>
         <ul class="dropdown-list">
@@ -108,7 +104,7 @@ export function renderModelConfig(data, isEditable = false) {
         </ul>
       </div>
           
-      <input type="hidden" name="agent[retrieval_method]" id="retrieval_method" value="${data.retrieval_method}">
+      <input type="hidden" name="agent[retrieval_method]" id="retrieval_method" value="${getVal(cfg,'retrieval_method','RETRIEVAL_METHOD_UNKNOWN')}">
 
       ${isEditable ? `
         <button type="button" class="save-model-config">
@@ -155,13 +151,24 @@ export function bindModelConfigEvents(uuid) {
     saveBtn.disabled = true;
     saveBtn.querySelector(".save-text").textContent = "Saving...";
     saveBtn.querySelector(".inline-spinner").style.display = "inline-block";
-    const payload = {
-      max_tokens: parseInt(document.querySelector("#max_tokens").value, 10),
-      temperature: parseFloat(document.querySelector("#temperature").value),
-      top_p: parseFloat(document.querySelector("#top_p").value),
-      k: parseInt(document.querySelector("#k").value, 10),
-      retrieval_method: document.querySelector("#retrieval_method").value,
-    };
+    const current = {
+        max_tokens: parseInt(document.querySelector("#max_tokens").value, 10),
+        temperature: parseFloat(document.querySelector("#temperature").value),
+        top_p: parseFloat(document.querySelector("#top_p").value),
+        k: parseInt(document.querySelector("#k").value, 10),
+        retrieval_method: document.querySelector("#retrieval_method").value,
+      };
+      const original = window.__agentSettings?.originalModelConfig || {};
+      const payload = Object.fromEntries(
+        Object.entries(current).filter(([k, v]) => v !== original[k])
+      );
+      if (Object.keys(payload).length === 0) {
+        // nothing changed
+        saveBtn.disabled = false;
+        saveBtn.querySelector(".save-text").textContent = "Save Configuration";
+        saveBtn.querySelector(".inline-spinner").style.display = "none";
+        return;
+      }
 
     try {
       const response = await fetch(`/settings/agents/${uuid}/model_config`, {
@@ -174,9 +181,23 @@ export function bindModelConfigEvents(uuid) {
       });
 
       if (!response.ok) throw new Error(`Failed to update: ${response.status}`);
+
+      // Reload the entire settings page UI by re-running the agent change handler
+      const dropdown = document.getElementById("agent-select");
+      if (dropdown) {
+        // keep current selection and re-render all sections
+        dropdown.value = uuid;
+        dropdown.dispatchEvent(new Event("change"));
+      } else {
+        // fallback: full page reload if dropdown not found
+        window.location.reload();
+      }
+      
+      // reset button UI
       saveBtn.disabled = false;
       saveBtn.querySelector(".save-text").textContent = "Save Configuration";
       saveBtn.querySelector(".inline-spinner").style.display = "none";
+      
     } catch (err) {
       alert("Error saving configuration");
       saveBtn.disabled = false;

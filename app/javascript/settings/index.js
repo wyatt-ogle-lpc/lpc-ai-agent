@@ -38,27 +38,41 @@ document.addEventListener("turbo:load", () => {
         const response = await fetch(`/settings/fetch/${uuid}`);
         if (!response.ok) throw new Error(`Failed with status ${response.status}`);
         const data = await response.json();
-        const versions = await fetchAgentVersions(uuid);
-        const currentVersion = versions.find(v => v.version_hash === data.version_hash);
-        const descriptionToShow = currentVersion?.description || data.description;
-
         const editableRolesMeta = document.querySelector('meta[name="editable-roles"]')?.content;
         const editableRoles = editableRolesMeta ? editableRolesMeta.split(',').map(r => r.toLowerCase()) : [];
+        const role = document.querySelector('meta[name="current-role"]')?.content.toLowerCase();
+        const isEditable = editableRoles.includes(role);
+        
+        // model_config snapshot used for rendering/diffing
+        const cfg = (data && data.model_config) ? data.model_config : data;
+        
+        // store settings once
+        window.__agentSettings = {
+          isEditable,
+          uuid,
+          originalModelConfig: {
+            max_tokens: cfg?.max_tokens,
+            temperature: cfg?.temperature,
+            top_p: cfg?.top_p,
+            k: cfg?.k,
+            retrieval_method: cfg?.retrieval_method,
+          }
+        };
 
         const formattedRoles = editableRoles.map(r => r.charAt(0).toUpperCase() + r.slice(1));
-
         const rolesDisplay = formattedRoles.length > 1
           ? `${formattedRoles.slice(0, -1).join(', ')} or ${formattedRoles.slice(-1)[0]}`
           : formattedRoles[0] || "N/A";
-        
-        const role = document.querySelector('meta[name="current-role"]')?.content.toLowerCase();
-        const isEditable = editableRoles.includes(role);
-        window.__agentSettings = { isEditable, uuid };
 
         const tooltipHTML = `
           Role: ${role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Unknown'}<br>
           Must be ${rolesDisplay} to edit.
         `;
+
+        const versions = await fetchAgentVersions(uuid);
+        const currentVersion = versions.find(v => v.version_hash === data.version_hash);
+        const descriptionToShow = currentVersion?.description || data.description;
+        console.log('Model config used for rendering:', cfg);
 
       // Build sections
       container.innerHTML = `
@@ -110,7 +124,7 @@ document.addEventListener("turbo:load", () => {
         </div>
 
         <h3>Model Configuration</h3>
-        ${renderModelConfig(data, isEditable)}
+        ${renderModelConfig(cfg, isEditable)}
 
 
         <h3>Routing & Guardrails</h3>

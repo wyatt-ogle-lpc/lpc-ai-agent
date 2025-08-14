@@ -255,14 +255,24 @@ private
     JSON.parse(res.body)["agent_version"]
   end
 
-    def fetch_agent(uuid)
-      url = "#{BASE_URL}/#{uuid}"
-      response = Faraday.get(url) do |req|
-        req.headers["Authorization"] = "Bearer #{ENV['DIGITALOCEAN_API']}"
-        req.headers["Content-Type"] = "application/json"
-      end
-      JSON.parse(response.body)["agent"]
+  def fetch_agent(uuid)
+    url = "#{BASE_URL}/#{uuid}"
+    response = Faraday.get(url) do |req|
+      req.headers["Authorization"] = "Bearer #{ENV['DIGITALOCEAN_API']}"
+      req.headers["Content-Type"] = "application/json"
     end
+  
+    agent = JSON.parse(response.body)["agent"] || {}
+  
+    # Ensure keys exist even if DO omits them when they are 0
+    agent["max_tokens"]        = agent.key?("max_tokens")        ? agent["max_tokens"]        : 512
+    agent["temperature"]       = agent.key?("temperature")       ? agent["temperature"]       : 0.0
+    agent["top_p"]             = agent.key?("top_p")             ? agent["top_p"]             : 1.0
+    agent["k"]                 = agent.key?("k")                 ? agent["k"]                 : 0
+    agent["retrieval_method"]  = agent.key?("retrieval_method")  ? agent["retrieval_method"]  : "RETRIEVAL_METHOD_UNKNOWN"
+  
+    agent
+  end
   
     def update_agent(uuid, payload, desc: false)
       # For auto-created versions, skip naming
