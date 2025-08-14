@@ -210,7 +210,8 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       // (optional) keep the modal in view with fresh data:
       modal.remove();
       document.documentElement.style.overflow = '';
-      window.location.reload();
+      console.log("reloading after function update");
+      window.location.reload(true);
     } catch (err) {
       alert("Error saving function description. Check the console for details.");
       console.error(err);
