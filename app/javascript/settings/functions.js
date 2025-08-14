@@ -170,6 +170,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // <-- missing in your code
   
     try {
+      console.log("Updating function via PUT", { agentUUID, functionUUID });
       const response = await fetch(`/settings/agents/${agentUUID}/functions/${functionUUID}`, {
         method: "PUT",
         headers: {
@@ -193,6 +194,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       }
   
       const updated = await response.json();
+      console.log("Function update OK:", updated);
 
       document.dispatchEvent(new CustomEvent("agent:functionUpdated", {
         detail: {
@@ -207,11 +209,17 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
         }
       }));
       
-      // (optional) keep the modal in view with fresh data:
       modal.remove();
       document.documentElement.style.overflow = '';
-      console.log("reloading after function update");
-      window.location.reload(true);
+      
+      // Build a cache-busted URL that preserves ?agent=...
+      const url = new URL(window.location.href);
+      if (agentUUID) url.searchParams.set('agent', agentUUID);
+      url.searchParams.set('_', Date.now());
+      
+      // Use replace() so we don't spam history
+      window.location.replace(url.toString());
+      
     } catch (err) {
       alert("Error saving function description. Check the console for details.");
       console.error(err);
