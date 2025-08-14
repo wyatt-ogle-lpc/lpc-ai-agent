@@ -210,21 +210,13 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       // (optional) keep the modal in view with fresh data:
       modal.remove();
       document.documentElement.style.overflow = '';
-      showFunctionModal(
-        { ...fn, description: newDescription, input_schema: newInputSchema, output_schema: newOutputSchema },
-        agentUUID,
-        functionUUID,
-        true
-      );
-  
-      modal.remove();
-      document.documentElement.style.overflow = '';
-      showFunctionModal(
-        { ...fn, description: newDescription, input_schema: newInputSchema, output_schema: newOutputSchema },
-        agentUUID,
-        functionUUID,
-        true
-      );
+      const dropdown = document.getElementById("agent-select");
+      if (dropdown) {
+        dropdown.value = agentUUID;
+        dropdown.dispatchEvent(new Event("change"));
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       alert("Error saving function description. Check the console for details.");
       console.error(err);
