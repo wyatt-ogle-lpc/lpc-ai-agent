@@ -193,7 +193,6 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       }
   
       const updated = await response.json();
-      console.log("Function update OK:", updated);
 
       document.dispatchEvent(new CustomEvent("agent:functionUpdated", {
         detail: {

@@ -7,9 +7,7 @@ import { renderGuardrails, showGuardrailModal } from "settings/guardrails";
 import { renderInstructions, bindInstructionsEvents } from "settings/instructions";
 import { fetchAgentVersions, renderVersions, bindVersionEvents, extractName } from "settings/version";
 
-console.log("[DBG] settings/index.js bundle loaded at", new Date().toISOString());
 document.addEventListener("turbo:load", () => {
-    console.log("[DBG] turbo:load fired");
     const dropdown = document.getElementById("agent-select");
     const container = document.getElementById("agent-form-container");
   
@@ -73,7 +71,6 @@ document.addEventListener("turbo:load", () => {
         const versions = await fetchAgentVersions(uuid);
         const currentVersion = versions.find(v => v.version_hash === data.version_hash);
         const descriptionToShow = currentVersion?.description || data.description;
-        console.error('Model config used for rendering:', cfg);
 
       // Build sections
       container.innerHTML = `
