@@ -170,7 +170,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // <-- missing in your code
   
     try {
-      console.log("Updating function via PUT", { agentUUID, functionUUID });
+      console.error("Updating function via PUT", { agentUUID, functionUUID });
       const response = await fetch(`/settings/agents/${agentUUID}/functions/${functionUUID}`, {
         method: "PUT",
         headers: {
@@ -194,7 +194,7 @@ async function openFunctionEditModal(fn, agentUUID, functionUUID, modal) {
       }
   
       const updated = await response.json();
-      console.log("Function update OK:", updated);
+      console.error("Function update OK:", updated);
 
       document.dispatchEvent(new CustomEvent("agent:functionUpdated", {
         detail: {
